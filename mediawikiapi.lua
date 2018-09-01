@@ -9,16 +9,17 @@ Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication
 * lua-multipart-post: HTTP Multipart Post helper for lua
 * lua-luajson: JSON parser/encoder for Lua
+:(darktable is not a dependency)
 ]]
 
--- print: require 'pl.pretty'.dump(t)
 --TODO local these
 https = require("ssl.https")
 json = require('json')
 ltn12 = require "ltn12"
 mpost = require "multipart-post"
 
-require "pl"    -- for debugging
+prpr = require('pl.pretty').dump --dbg pretty printer
+
 dtHttp = {}
 function dtHttp.get(url, reqheaders)
     local res, code, resheaders, status = https.request {
@@ -277,7 +278,7 @@ function MediaWikiApi.uploadfile(filepath, pagetext)
   req.headers["cookie"] = MediaWikiApi.cookie
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
-  require 'pl.pretty'.dump(req)
+  prpr(req)
   _,code,resheaders = https.request(req)
   return code,resheaders, res
 end
@@ -297,7 +298,7 @@ function MediaWikiApi.publicuploadfile(filepath, pagetext, rurl, usehttps)
   req.headers["cookie"] = "MediaWikiApi.cookie"
   req.url = rurl
   req.sink = ltn12.sink.table(res)
-  require 'pl.pretty'.dump(req)
+  prpr(req)
   if(usehttps) then
     _,code,resheaders = https.request(req)
   else

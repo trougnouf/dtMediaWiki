@@ -110,12 +110,14 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     if post then
         requestHeaders["Content-Length"] = #requestBody
     end
-    if(MediaWikiApi.cookie ~= nil) then requestHeaders["cookie"] = MediaWikiApi.cookie end
+    if MediaWikiApi.cookie then requestHeaders["Cookie"] = MediaWikiApi.cookie end
     MediaWikiUtils.trace('Performing HTTP request');
     MediaWikiUtils.trace('Path:')
     MediaWikiUtils.trace(path)
     MediaWikiUtils.trace('Request body:');
     MediaWikiUtils.trace(requestBody);
+    MediaWikiUtils.trace('Request header: ')
+    prpr(requestHeaders)
 
     local resultBody, resultHeaders
     if post then
@@ -132,12 +134,27 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     elseif resultHeaders.status ~= 200 then
         MediaWikiApi.httpError(resultHeaders.status)
     end
-    MediaWikiApi.cookie = resultHeaders["set-cookie"]
-    print("new cookie: "..MediaWikiApi.cookie)
+    MediaWikiApi.setCookie(resultHeaders["set-cookie"])
+    --print("new cookie: "..resultHeaders["set-cookie"])
     MediaWikiUtils.trace('Result body:');
     MediaWikiUtils.trace(resultBody);
-
+    MediaWikiUtils.trace('Result headers:')
+    prpr(resultHeaders)
     return resultBody
+end
+
+function MediaWikiApi.setCookie(newcookie)
+  -- remove deleted part of the cookie
+  MediaWikiApi.cookie = newcookie
+  _,deli = string.find(MediaWikiApi.cookie, "deleted")
+  if deli then
+    newib,_ = string.find(MediaWikiApi.cookie, "commonswikiSession=",deli)
+    if newib then MediaWikiApi.cookie = string.nub(MediaWikiApi.cookie, newib)
+    else
+      MediaWikiApi.cookie = nil
+    end
+    
+  end
 end
 
 function MediaWikiApi.performRequest(arguments)
@@ -152,6 +169,7 @@ function MediaWikiApi.logout()
         action = 'logout',
     }
     MediaWikiApi.performRequest(arguments)
+    MediaWikiApi.cookie = nil
 end
 
 function MediaWikiApi.login(username, password)
@@ -250,7 +268,7 @@ end
 
 
 function MediaWikiApi.getEditToken()
-  if MediaWikiApi.edit_token == nil then
+  --if MediaWikiApi.edit_token == nil then
     local arguments = {
       action = 'query',
       meta = 'tokens',
@@ -259,7 +277,7 @@ function MediaWikiApi.getEditToken()
     }
     local jsonres = MediaWikiApi.performRequest(arguments)
     MediaWikiApi.edit_token = jsonres.query.tokens.csrftoken
-  end
+  --end
   return MediaWikiApi.edit_token
 end
 
@@ -270,8 +288,8 @@ function MediaWikiApi.uploadfile(filepath, pagetext)
     action = 'upload',
     filename = "trougnoufsandbox.png",
     text = pagetext,
-    file = file_handler:read("*all"),
     token = MediaWikiApi.getEditToken(),
+    file = {filename="whatevs", file = file_handler:read("*all")},
   }
   res = {}
   req = mpost.gen_request(content)
@@ -280,6 +298,7 @@ function MediaWikiApi.uploadfile(filepath, pagetext)
   req.sink = ltn12.sink.table(res)
   prpr(req)
   _,code,resheaders = https.request(req)
+  MediaWikiApi.setCookie(resheaders["set-cookie"])
   return code,resheaders, res
 end
 
@@ -295,7 +314,7 @@ function MediaWikiApi.publicuploadfile(filepath, pagetext, rurl, usehttps)
   }
   res = {}
   req = mpost.gen_request(content)
-  req.headers["cookie"] = "MediaWikiApi.cookie"
+  req.headers["Cookie"] = "MediaWikiApi.cookie"
   req.url = rurl
   req.sink = ltn12.sink.table(res)
   prpr(req)

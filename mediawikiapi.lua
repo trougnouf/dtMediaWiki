@@ -60,7 +60,7 @@ Info = {
 MediaWikiApi = {
     userAgent = string.format('mediawikilua %d.%d', Info.VERSION.major, Info.VERSION.minor),
     apiPath = "https://commons.wikimedia.org/w/api.php",
-    cookie = nil,
+    cookie = {},
     edit_token = nil
 }
 
@@ -69,6 +69,37 @@ MediaWikiUtils = {}
 MediaWikiUtils.trace = function(message)
     print(message)
 end
+
+function MediaWikiApi.parseCookie(unparsedcookie)
+  while unparsedcookie and string.len(unparsedcookie) > 0 do
+    local i = string.find(unparsedcookie,";")
+    local crumb = string.sub(unparsedcookie,1,i-1)
+    local isep = string.find(crumb,"=")
+    if isep then
+      local cvar = string.sub(crumb, 1, isep-1)
+      local icvarcomma = string.find(cvar, ",")
+      while icvarcomma do
+        cvar = string.sub(cvar, icvarcomma+2)
+        icvarcomma = string.find(cvar, ",")
+      end
+      
+      MediaWikiApi.cookie[cvar] = string.sub(crumb, isep+1)
+    end
+    local nexti = string.find(unparsedcookie,",")
+    if not nexti then return end
+    unparsedcookie = string.sub(unparsedcookie, nexti+2)
+  end
+end
+
+function MediaWikiApi.cookie2string()
+  prestr = {}
+  cstr = ""
+  for cvar,cval in pairs(MediaWikiApi.cookie) do
+      table.insert(prestr,cvar.."="..cval..";")
+  end
+  return table.concat(prestr)
+end
+
 
 --- URL-encode a string according to RFC 3986.
 -- Based on http://lua-users.org/wiki/StringRecipes
@@ -110,7 +141,7 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     if post then
         requestHeaders["Content-Length"] = #requestBody
     end
-    if MediaWikiApi.cookie then requestHeaders["Cookie"] = MediaWikiApi.cookie end
+    requestHeaders["Cookie"] = MediaWikiApi.cookie2string()
     MediaWikiUtils.trace('Performing HTTP request');
     MediaWikiUtils.trace('Path:')
     MediaWikiUtils.trace(path)
@@ -134,27 +165,13 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     elseif resultHeaders.status ~= 200 then
         MediaWikiApi.httpError(resultHeaders.status)
     end
-    MediaWikiApi.setCookie(resultHeaders["set-cookie"])
+    MediaWikiApi.parseCookie(resultHeaders["set-cookie"])
     --print("new cookie: "..resultHeaders["set-cookie"])
     MediaWikiUtils.trace('Result body:');
     MediaWikiUtils.trace(resultBody);
     MediaWikiUtils.trace('Result headers:')
     prpr(resultHeaders)
     return resultBody
-end
-
-function MediaWikiApi.setCookie(newcookie)
-  -- remove deleted part of the cookie
-  MediaWikiApi.cookie = newcookie
-  _,deli = string.find(MediaWikiApi.cookie, "deleted")
-  if deli then
-    newib,_ = string.find(MediaWikiApi.cookie, "commonswikiSession=",deli)
-    if newib then MediaWikiApi.cookie = string.nub(MediaWikiApi.cookie, newib)
-    else
-      MediaWikiApi.cookie = nil
-    end
-    
-  end
 end
 
 function MediaWikiApi.performRequest(arguments)
@@ -169,7 +186,6 @@ function MediaWikiApi.logout()
         action = 'logout',
     }
     MediaWikiApi.performRequest(arguments)
-    MediaWikiApi.cookie = nil
 end
 
 function MediaWikiApi.login(username, password)
@@ -293,12 +309,12 @@ function MediaWikiApi.uploadfile(filepath, pagetext)
   }
   res = {}
   req = mpost.gen_request(content)
-  req.headers["cookie"] = MediaWikiApi.cookie
+  req.headers["cookie"] = MediaWikiApi.cookie2string()
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
   prpr(req)
   _,code,resheaders = https.request(req)
-  MediaWikiApi.setCookie(resheaders["set-cookie"])
+  MediaWikiApi.parseCookie(resheaders["set-cookie"])
   return code,resheaders, res
 end
 

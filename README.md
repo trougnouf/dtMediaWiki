@@ -24,7 +24,7 @@ or simply use the [arch installer](https://aur.archlinux.org/packages/darktable-
 ## Usage
 
 * Login to Wikimedia Commons by setting your "Wikimedia username" and "Wikimedia password" in *darktable preferences > lua options* then restarting darktable.
-	 * This will add the "Wikimedia commons" entry into target storage.
+	 * This will add the "Wikimedia Commons" entry into target storage.
 * Ensure your image metadata contains the following:
 	 * a title and/or description.
 		 * The current output filename is "title (filename) description.ext" or "title (filename).ext" depending on what is available

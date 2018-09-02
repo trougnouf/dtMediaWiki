@@ -8,7 +8,6 @@ Eckhard Henkel <eckhard.henkel@wikipedia.de>
 
 Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication
-* lua-multipart-post: HTTP Multipart Post helper for lua
 * lua-luajson: JSON parser/encoder for Lua
 :(darktable is not a dependency)
 ]]

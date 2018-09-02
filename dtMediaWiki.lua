@@ -80,14 +80,14 @@ local function make_image_page(image)
       table.insert(imgpg, "[[Category:F-number f/"..fmt_flt(image.exif_aperture).."]]")
     end
     if image.exif_focal_length ~= "" then
-      table.insert(imgpg, "[[Category:Lens focal length "..fmt_flt*image.exif_focal_length).." mm]]")
+      table.insert(imgpg, "[[Category:Lens focal length "..fmt_flt(image.exif_focal_length).." mm]]")
     end
     if image.exif_iso ~= "" then
-      table.insert(imgpg, "[[Category:ISO speed rating "..flt_fmt(image.exif_iso).."]]")
+      table.insert(imgpg, "[[Category:ISO speed rating "..fmt_flt(image.exif_iso).."]]")
     end
-    --[[if image.exif_exposure ~= "" then
-      table.insert(imgpg, "[[Category:Exposure time "..image.exif_exposure.." sec]]")
-    end]] -- decimal instead of fraction
+--    if image.exif_exposure ~= "" then
+--      table.insert(imgpg, "[[Category:Exposure time "..image.exif_exposure.." sec]]")
+--    end -- decimal instead of fraction
   end
   
   table.insert(imgpg, "[[Category:Uploaded with dtMediaWiki]]")

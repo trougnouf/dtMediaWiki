@@ -14,7 +14,7 @@ Dependencies:
 -- print: require 'pl.pretty'.dump(t)
 
 local dt = require "darktable"
-local df = require "lib/dtutils.file"
+--local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
 dt.preferences.register("mediawiki_export", "username", "string", "Wikimedia username", "Wikimedia Commons username", "")
@@ -28,11 +28,20 @@ local function msgout(txt)
   dt.print(txt)
 end
 
+local function make_image_name(image, tmp_exp_path)
+  local ext = tmp_exp_path:match"[^.]+$"
+  local bname = image.filename:match"[^.]+"
+  local fname = image.title.." ("..bname..")"
+  if image.description ~= '' then fname = fname.." "..image.description end
+  fname = fname.."."..ext
+  return fname
+end
+
 
 local function make_image_page(image)
   local imgpg = {"=={{int:filedesc}}==\n{{Information"}
-  local desc = image.description -- TODO detect international desc
-  if image.description == '' then desc = image.title end
+  if image.description == '' then desc = image.title
+  else desc = image.title..": "..image.description end
   table.insert(imgpg, "|description={{en|1="..desc.."}}")
   table.insert(imgpg, "|date="..image.exif_datetime_taken) --TODO check format
   table.insert(imgpg, "|source={{own}}")
@@ -52,16 +61,21 @@ local function make_image_page(image)
     local tag = tag.name
     if string.sub(tag, 1, 9)=="Category:" then
       table.insert(imgpg, "[["..tag.."]]")
+    elseif tag:sub(1,2)=="{{" then table.insert(imgpg, tag)
     end
   end
+  table.insert(imgpg, "[[Category:Uploaded with dtMediaWiki]]")
   imgpg = table.concat(imgpg, "\n")
   return imgpg
 end
 
 --This function is called once for each exported image
-local function register_storage_store(storage, image, format, filename, number, total, high_quality, extra_data)
-  print(make_image_page(image))
-  msgout("exported " .. filename) -- that is the path also
+local function register_storage_store(storage, image, format, tmp_exp_path, number, total, high_quality, extra_data)
+  local imagepage = make_image_page(image)
+  local imagename = make_image_name(image, tmp_exp_path)
+  --print(imagepage)
+  MediaWikiApi.uploadfile(tmp_exp_path, imagepage, imagename)
+  msgout("exported " .. imagename) -- that is the path also
 end
 
 --This function is called once all images are processed and all store calls are finished.

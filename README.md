@@ -13,9 +13,3 @@ current instal method:
 * \# mkdir /usr/share/darktable/lua/contrib
 * \# ln -s /path/to/dtMediaWiki /usr/share/darktable/lua/contrib
 * $ echo 'require "contrib/dtMediaWiki/dtMediaWiki"' >> ~/.config/darktable/luarc
-
-steps to reproduce upload failure:
-
-    require 'mediawikiapi'
-    MediaWikiApi.login("username","password")
-    code,resheaders,res = MediaWikiApi.uploadfile("/home/trougnouf/trougnoufsandbox.png", "testpagecontent")

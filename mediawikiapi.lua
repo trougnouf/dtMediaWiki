@@ -1,6 +1,7 @@
---[[dtMediaWiki is a fork of LrMediaWiki for darktable
-    Author: Trougnouf (Benoit Brummer) <trougnouf@gmail.com>
+--[[
+Author: Trougnouf (Benoit Brummer) <trougnouf@gmail.com>
 
+mediawikiapi.lua uses some code adapted from LrMediaWiki
 LrMediaWiki authors:
 Robin Krahl <robin.krahl@wikipedia.de>
 Eckhard Henkel <eckhard.henkel@wikipedia.de>
@@ -12,6 +13,7 @@ Dependencies:
 :(darktable is not a dependency)
 ]]
 
+package.path = package.path..';./dtMediaWiki/?.lua'
 --TODO local these
 https = require("ssl.https")
 json = require('json')
@@ -20,8 +22,14 @@ mpost = require "multipart-post"
 
 prpr = require('pl.pretty').dump --dbg pretty printer
 
-dtHttp = {}
-function dtHttp.get(url, reqheaders)
+MediaWikiApi = {
+    userAgent = string.format('mediawikilua %d.%d', 0,1),
+    apiPath = "https://commons.wikimedia.org/w/api.php",
+    cookie = {},
+    edit_token = nil
+}
+
+function httpsget(url, reqheaders)
     local res, code, resheaders, status = https.request {
         url = url,
         headers = reqheaders
@@ -30,7 +38,8 @@ function dtHttp.get(url, reqheaders)
 
     return res, respheaders
 end
-function dtHttp.post(url, postBody, reqheaders)
+
+function httpspost(url, postBody, reqheaders)
     local res = {}
     _,code,resheaders,status = https.request{
         url = url,
@@ -48,28 +57,7 @@ function throwUserError(text)
     print(text)
 end
 
-
--- forked stuff
-Info = {
-    VERSION = {
-        major = 0,
-        minor = 1
-    }
-}
-
-MediaWikiApi = {
-    userAgent = string.format('mediawikilua %d.%d', Info.VERSION.major, Info.VERSION.minor),
-    apiPath = "https://commons.wikimedia.org/w/api.php",
-    cookie = {},
-    edit_token = nil
-}
-
-MediaWikiUtils = {}
-
-MediaWikiUtils.trace = function(message)
-    print(message)
-end
-
+-- parse a received cookie and update MediaWikiApi.cookie
 function MediaWikiApi.parseCookie(unparsedcookie)
   while unparsedcookie and string.len(unparsedcookie) > 0 do
     local i = string.find(unparsedcookie,";")
@@ -91,6 +79,7 @@ function MediaWikiApi.parseCookie(unparsedcookie)
   end
 end
 
+-- generate a cookie string from MediaWikiApi.cookie to send to server
 function MediaWikiApi.cookie2string()
   prestr = {}
   cstr = ""
@@ -98,6 +87,53 @@ function MediaWikiApi.cookie2string()
       table.insert(prestr,cvar.."="..cval..";")
   end
   return table.concat(prestr)
+end
+
+-- Demand an edit token. probably can change this to request only one per session
+function MediaWikiApi.getEditToken()
+  --if MediaWikiApi.edit_token == nil then
+    local arguments = {
+      action = 'query',
+      meta = 'tokens',
+      type = 'csrf',
+      format = 'json',
+    }
+    local jsonres = MediaWikiApi.performRequest(arguments)
+    MediaWikiApi.edit_token = jsonres.query.tokens.csrftoken
+  --end
+  return MediaWikiApi.edit_token
+end
+
+
+function MediaWikiApi.uploadfile(filepath, pagetext, filename)
+  file_handler = io.open(filepath)
+  content = {
+    action = 'upload',
+    filename = filename,
+    text = pagetext,
+    comment = 'Uploaded with dtMediaWiki',
+    token = MediaWikiApi.getEditToken(),
+    ignorewarnings = 'true',
+    file = {filename="whatevs", file = file_handler:read("*all")},
+  }
+  res = {}
+  req = mpost.gen_request(content)
+  req.headers["cookie"] = MediaWikiApi.cookie2string()
+  req.url = MediaWikiApi.apiPath
+  req.sink = ltn12.sink.table(res)
+  prpr(req)
+  _,code,resheaders = https.request(req)
+  MediaWikiApi.parseCookie(resheaders["set-cookie"])
+  return code,resheaders, res
+end
+
+
+
+-- Code adapted from LrMediaWiki:
+MediaWikiUtils = {}
+
+MediaWikiUtils.trace = function(message)
+    print(message)
 end
 
 
@@ -114,7 +150,6 @@ function MediaWikiApi.urlEncode(str)
     end
     return str
 end
-
 
 --- Convert HTTP arguments to a URL-encoded request body.
 -- @param arguments (table) the arguments to convert
@@ -152,9 +187,9 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
 
     local resultBody, resultHeaders
     if post then
-        resultBody, resultHeaders = dtHttp.post(path, requestBody, requestHeaders)
+        resultBody, resultHeaders = httpspost(path, requestBody, requestHeaders)
     else
-        resultBody, resultHeaders = dtHttp.get(path .. '?' .. requestBody, requestHeaders)
+        resultBody, resultHeaders = httpsget(path .. '?' .. requestBody, requestHeaders)
     end
 
     MediaWikiUtils.trace('Result status:');
@@ -280,113 +315,4 @@ function MediaWikiApi.login(username, password)
         end
     end
 end
--- end of forked stuff
-
-
-function MediaWikiApi.getEditToken()
-  --if MediaWikiApi.edit_token == nil then
-    local arguments = {
-      action = 'query',
-      meta = 'tokens',
-      type = 'csrf',
-      format = 'json',
-    }
-    local jsonres = MediaWikiApi.performRequest(arguments)
-    MediaWikiApi.edit_token = jsonres.query.tokens.csrftoken
-  --end
-  return MediaWikiApi.edit_token
-end
-
-
-function MediaWikiApi.uploadfile(filepath, pagetext)
-  file_handler = io.open(filepath)
-  content = {
-    action = 'upload',
-    filename = "trougnoufsandbox.png",
-    text = pagetext,
-    token = MediaWikiApi.getEditToken(),
-    file = {filename="whatevs", file = file_handler:read("*all")},
-  }
-  res = {}
-  req = mpost.gen_request(content)
-  req.headers["cookie"] = MediaWikiApi.cookie2string()
-  req.url = MediaWikiApi.apiPath
-  req.sink = ltn12.sink.table(res)
-  prpr(req)
-  _,code,resheaders = https.request(req)
-  MediaWikiApi.parseCookie(resheaders["set-cookie"])
-  return code,resheaders, res
-end
-
--- for testing (send to localhost to get raw request)
-function MediaWikiApi.publicuploadfile(filepath, pagetext, rurl, usehttps)
-  file_handler = io.open(filepath)
-  content = {
-    action = 'upload',
-    filename = "trougnoufsandbox.png",
-    text = pagetext,
-    token = MediaWikiApi.getEditToken(),
-    file = {filename = "trougnoufsandbox.png", data = file_handler:read("*all")},
-  }
-  res = {}
-  req = mpost.gen_request(content)
-  req.headers["Cookie"] = "MediaWikiApi.cookie"
-  req.url = rurl
-  req.sink = ltn12.sink.table(res)
-  prpr(req)
-  if(usehttps) then
-    _,code,resheaders = https.request(req)
-  else
-    _,code,resheaders = require("socket.http").request(req)
-  end
-  
-  return code,resheaders, res
-end
-
---function dtHttp.post(url, postBody, reqheaders)
---    local res = {}
---    _,code,resheaders,status = https.request{
---        url = url,
---        method="POST",
---        headers=reqheaders,
---        source=ltn12.source.string(postBody),
---        sink=ltn12.sink.table(res),
---    }
---    resheaders.status = code
-
---    return table.concat(res), resheaders
---end
-
-
-
---[[
-LrMediaWiki license:
-Copyright (c) 2014, 2015, 2016 by the LrMediaWiki team, X11 License
-
-Except:
-- JSON.lua: Copyright 2010-2014 Jeffrey Friedl [1], CC-by 3.0 [2]
-
-[0] <https://raw.githubusercontent.com/ireas/LrMediaWiki/master/CREDITS.txt>
-[1] <http://regex.info/blog/lua/json>
-[2] <http://creativecommons.org/licenses/by/3.0/deed.en_US>
-
-The X11 License
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.]]
-
+-- end of LrMediaWiki code

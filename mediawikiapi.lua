@@ -105,7 +105,7 @@ function MediaWikiApi.getEditToken()
 end
 
 
-function MediaWikiApi.uploadfile(filepath, pagetext, filename)
+function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
   file_handler = io.open(filepath)
   content = {
     action = 'upload',
@@ -113,9 +113,9 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename)
     text = pagetext,
     comment = 'Uploaded with dtMediaWiki',
     token = MediaWikiApi.getEditToken(),
-    ignorewarnings = 'true',
     file = {filename="whatevs", file = file_handler:read("*all")},
   }
+  if overwrite then content["ignorewarnings"] = 'true' end
   res = {}
   req = mpost.gen_request(content)
   req.headers["cookie"] = MediaWikiApi.cookie2string()

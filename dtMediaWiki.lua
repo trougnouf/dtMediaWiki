@@ -12,6 +12,8 @@ local gettext = dt.gettext
 dt.preferences.register("mediawiki_export", "username", "string", "Wikimedia username", "Wikimedia Commons username", "")
 dt.preferences.register("mediawiki_export", "password", "string", "Wikimedia password",
         "Wikimedia Commons password (to be stored in plain-text!)", "")
+dt.preferences.register("mediawiki_export", "overwrite", "bool", "Overwrite existing images?", "Existing images will be overwritten  without confirmation, otherwise the upload will fail.", false)
+dt.preferences.register("mediawiki_export", "cat_cam", "bool", "Categorize camera?", "A category will be added with the camera information (eg: [[Category:Taken with Fujifilm X-E2 and XF18-55mmF2.8-4 R LM OIS]])", false)
 
 local mediawikiapi = require "contrib/dtMediaWiki/mediawikiapi"
 
@@ -27,6 +29,12 @@ local function make_image_name(image, tmp_exp_path)
   if image.description ~= '' then fname = fname.." "..image.description end
   fname = fname.."."..ext
   return fname
+end
+
+local function fmt_flt(num)
+  if string.sub(num, -2) == '.0' then return string.sub(num,1,-3)
+  else return tostring(num)
+  end
 end
 
 
@@ -56,6 +64,32 @@ local function make_image_page(image)
     elseif tag:sub(1,2)=="{{" then table.insert(imgpg, tag)
     end
   end
+  if dt.preferences.read("mediawiki_export", "cat_cam", "bool") then
+    print("catcam enabled")--dbg
+    local catcam = ""
+    if image.exif_model ~= '' then
+      local model = image.exif_maker:sub(1,1)..image.exif_maker:sub(2):lower()
+      catcam = "[[Category:Taken with "..model.." "..image.exif_model
+      if image.exif_lens ~= '' then
+        catcam = catcam.." and "..image.exif_lens.."]]"
+      else catcam = catcam.."]]"
+      end
+      table.insert(imgpg, catcam)
+    end
+    if image.exif_aperture then
+      table.insert(imgpg, "[[Category:F-number f/"..fmt_flt(image.exif_aperture).."]]")
+    end
+    if image.exif_focal_length ~= "" then
+      table.insert(imgpg, "[[Category:Lens focal length "..fmt_flt*image.exif_focal_length).." mm]]")
+    end
+    if image.exif_iso ~= "" then
+      table.insert(imgpg, "[[Category:ISO speed rating "..flt_fmt(image.exif_iso).."]]")
+    end
+    --[[if image.exif_exposure ~= "" then
+      table.insert(imgpg, "[[Category:Exposure time "..image.exif_exposure.." sec]]")
+    end]] -- decimal instead of fraction
+  end
+  
   table.insert(imgpg, "[[Category:Uploaded with dtMediaWiki]]")
   imgpg = table.concat(imgpg, "\n")
   return imgpg
@@ -66,7 +100,7 @@ local function register_storage_store(storage, image, format, tmp_exp_path, numb
   local imagepage = make_image_page(image)
   local imagename = make_image_name(image, tmp_exp_path)
   --print(imagepage)
-  MediaWikiApi.uploadfile(tmp_exp_path, imagepage, imagename)
+  MediaWikiApi.uploadfile(tmp_exp_path, imagepage, imagename, dt.preferences.read("mediawiki_export", "overwrite", "bool"))
   msgout("exported " .. imagename) -- that is the path also
 end
 

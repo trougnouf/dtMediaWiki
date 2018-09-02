@@ -1,20 +1,12 @@
---[[dtMediaWiki is a fork of LrMediaWiki for darktable
+--[[dtMediaWiki is a darktable plugin which exports images to Wikimedia Commons
     Author: Trougnouf (Benoit Brummer) <trougnouf@gmail.com>
-
-LrMediaWiki authors:
-Robin Krahl <robin.krahl@wikipedia.de>
-Eckhard Henkel <eckhard.henkel@wikipedia.de>
 
 Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication
-* lua-multipart-post: HTTP Multipart Post helper for lua
 * lua-luajson: JSON parser/encoder for Lua
-* darktable-lua-scripts-git: Lua scripts extending darktable
 ]]
--- print: require 'pl.pretty'.dump(t)
 
 local dt = require "darktable"
---local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
 dt.preferences.register("mediawiki_export", "username", "string", "Wikimedia username", "Wikimedia Commons username", "")
@@ -120,36 +112,3 @@ if(MediaWikiApi.login(dt.preferences.read("mediawiki_export", "username", "strin
 else
     msgout("Unable to log into Wikimedia Commons, export disabled.")
 end
-
-
-
---[[
-LrMediaWiki license:
-Copyright (c) 2014, 2015, 2016 by the LrMediaWiki team, X11 License
-
-Except:
-- JSON.lua: Copyright 2010-2014 Jeffrey Friedl [1], CC-by 3.0 [2]
-
-[0] <https://raw.githubusercontent.com/ireas/LrMediaWiki/master/CREDITS.txt>
-[1] <http://regex.info/blog/lua/json>
-[2] <http://creativecommons.org/licenses/by/3.0/deed.en_US>
-
-The X11 License
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.]]

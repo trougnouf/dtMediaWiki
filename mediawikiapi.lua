@@ -9,7 +9,7 @@ Eckhard Henkel <eckhard.henkel@wikipedia.de>
 Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication
 * lua-luajson: JSON parser/encoder for Lua
-:(darktable is not a dependency)
+  (darktable is not a dependency)
 ]]
 
 package.path = package.path..';./dtMediaWiki/?.lua'

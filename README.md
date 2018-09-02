@@ -1,5 +1,7 @@
 # dtMediaWiki
-MediaWiki for darktable. This plugin allows to upload images directly to Wikimedia Commons.
+Wikimedia Commons export plugin for darktable
+
+See also: [Commons:DtMediaWiki](https://commons.wikimedia.org/wiki/Commons:DtMediaWiki)
 
 ## Dependencies
 * lua-sec
@@ -34,3 +36,15 @@ or simply use the [arch installer](https://aur.archlinux.org/packages/darktable-
 		 * Any tag that matches "Category:something" will be added as [[Category:something]] (no need to include the brackets), likewise any template matching "{{something}}" will be added as-is.
 
 The image coordinates will be added if they exist, and the creator metadata will be added as [[User:Wikimedia username|creator]] if it has been set.
+
+## Thanks
+
+* Iulia and Leslie for excellent coworking companionship and love
+* darktable developers for an excellent open-source imaging software with a well documented lua API
+* LrMediaWiki developers robinkrahl and Hasenlaeufer for what inspired this and some base code
+* MediaWiki User:Platonides for helping me figure out the cookie issue
+* 'catwell': author of lua-multipart-post and a responsive fellow
+
+--[Trougnouf](https://commons.wikimedia.org/wiki/User:Trougnouf)
+
+![:)](https://upload.wikimedia.org/wikipedia/commons/3/30/Binette-typo.png)

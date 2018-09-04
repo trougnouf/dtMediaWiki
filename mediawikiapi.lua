@@ -12,7 +12,8 @@ Dependencies:
   (darktable is not a dependency)
 ]]
 
-package.path = package.path..';./dtMediaWiki/?.lua'
+package.path = package.path..';/dtMediaWiki/?.lua'
+package.path = package.path..';/usr/share/darktable/lua/contrib/dtMediaWiki/?.lua'
 --TODO local these
 https = require("ssl.https")
 json = require('json')
@@ -122,6 +123,7 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
   req.sink = ltn12.sink.table(res)
   prpr(req)
   _,code,resheaders = https.request(req)
+  print(resheaders) -- debug
   MediaWikiApi.parseCookie(resheaders["set-cookie"])
   return code,resheaders, res
 end

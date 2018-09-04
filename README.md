@@ -29,9 +29,9 @@ or simply use the [arch installer](https://aur.archlinux.org/packages/darktable-
 	 * This will add the "Wikimedia Commons" entry into target storage.
 * Ensure your image metadata contains the following:
 	 * a title and/or description.
-		 * The current output filename is "title (filename) description.ext" or "title (filename).ext" depending on what is available
+		 * The default output filename is "title (filename) description.ext" or "title (filename).ext" depending on what is available
 	 * rights
-		 * use something compatible with the {{[self](https://commons.wikimedia.org/wiki/Template:Self)}} template, some options are "cc-by-sa-4.0", "cc-by-4.0", "GFDL", "GFDL|cc-by-sa-4.0,3.0,2.5,2.0,1.0", ...
+		 * Use something compatible with the {{[self](https://commons.wikimedia.org/wiki/Template:Self)}} template, some options are "cc-by-sa-4.0", "cc-by-4.0", "GFDL", "GFDL|cc-by-sa-4.0,3.0,2.5,2.0,1.0", ...
 	 * tags: Categories and templates
 		 * Any tag that matches "Category:something" will be added as [[Category:something]] (no need to include the brackets), likewise any template matching "{{something}}" will be added as-is.
 
@@ -45,6 +45,6 @@ The image coordinates will be added if they exist, and the creator metadata will
 * MediaWiki User:Platonides for helping me figure out the cookie issue
 * 'catwell': author of lua-multipart-post and a responsive fellow
 
---[Trougnouf](https://commons.wikimedia.org/wiki/User:Trougnouf)
-
 ![:)](https://upload.wikimedia.org/wikipedia/commons/3/30/Binette-typo.png)
+
+--[Trougnouf](https://commons.wikimedia.org/wiki/User:Trougnouf)

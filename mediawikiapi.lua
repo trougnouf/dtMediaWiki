@@ -9,20 +9,18 @@ Eckhard Henkel <eckhard.henkel@wikipedia.de>
 Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication
 * lua-luajson: JSON parser/encoder for Lua
+* lua-multipart-post: HTTP Multipart Post helper
   (darktable is not a dependency)
 ]]
 
 package.path = package.path..';/dtMediaWiki/?.lua'
 package.path = package.path..';/usr/share/darktable/lua/contrib/dtMediaWiki/?.lua'
---TODO local these
-https = require("ssl.https")
-json = require('json')
-ltn12 = require "ltn12"
-mpost = require "multipart-post"
+local https = require("ssl.https")
+local json = require('json')
+local ltn12 = require "ltn12"
+local mpost = require "multipart-post"
 
-prpr = require('pl.pretty').dump --dbg pretty printer
-
-MediaWikiApi = {
+local MediaWikiApi = {
     userAgent = string.format('mediawikilua %d.%d', 0,1),
     apiPath = "https://commons.wikimedia.org/w/api.php",
     cookie = {},
@@ -113,7 +111,10 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
     text = pagetext,
     comment = 'Uploaded with dtMediaWiki',
     token = MediaWikiApi.getEditToken(),
-    file = {filename="whatevs", file = file_handler:read("*all")},
+    file = {
+        filename = "whatevs",
+        data = file_handler:read("*all"),
+    },
   }
   if overwrite then content["ignorewarnings"] = 'true' end
   res = {}
@@ -121,7 +122,6 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
   req.headers["cookie"] = MediaWikiApi.cookie2string()
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
-  prpr(req)
   _,code,resheaders = https.request(req)
   print(resheaders) -- debug
   MediaWikiApi.parseCookie(resheaders["set-cookie"])
@@ -131,7 +131,7 @@ end
 
 
 -- Code adapted from LrMediaWiki:
-MediaWikiUtils = {}
+local MediaWikiUtils = {}
 
 MediaWikiUtils.trace = function(message)
     print(message)
@@ -184,7 +184,6 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     MediaWikiUtils.trace('Request body:');
     MediaWikiUtils.trace(requestBody);
     MediaWikiUtils.trace('Request header: ')
-    prpr(requestHeaders)
 
     local resultBody, resultHeaders
     if post then
@@ -206,7 +205,6 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     MediaWikiUtils.trace('Result body:');
     MediaWikiUtils.trace(resultBody);
     MediaWikiUtils.trace('Result headers:')
-    prpr(resultHeaders)
     return resultBody
 end
 
@@ -317,3 +315,5 @@ function MediaWikiApi.login(username, password)
     end
 end
 -- end of LrMediaWiki code
+
+return MediaWikiApi

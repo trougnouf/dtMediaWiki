@@ -20,8 +20,6 @@ json = require('json')
 ltn12 = require "ltn12"
 mpost = require "multipart-post"
 
-prpr = require('pl.pretty').dump --dbg pretty printer
-
 MediaWikiApi = {
     userAgent = string.format('mediawikilua %d.%d', 0,1),
     apiPath = "https://commons.wikimedia.org/w/api.php",
@@ -121,7 +119,6 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
   req.headers["cookie"] = MediaWikiApi.cookie2string()
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
-  prpr(req)
   _,code,resheaders = https.request(req)
   print(resheaders) -- debug
   MediaWikiApi.parseCookie(resheaders["set-cookie"])
@@ -184,7 +181,6 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     MediaWikiUtils.trace('Request body:');
     MediaWikiUtils.trace(requestBody);
     MediaWikiUtils.trace('Request header: ')
-    prpr(requestHeaders)
 
     local resultBody, resultHeaders
     if post then
@@ -206,7 +202,6 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     MediaWikiUtils.trace('Result body:');
     MediaWikiUtils.trace(resultBody);
     MediaWikiUtils.trace('Result headers:')
-    prpr(resultHeaders)
     return resultBody
 end
 

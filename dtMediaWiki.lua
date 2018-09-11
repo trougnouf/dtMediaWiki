@@ -12,25 +12,26 @@ local gettext = dt.gettext
 local mediawikiapi = require "contrib/dtMediaWiki/mediawikiapi"
 
 -- Preference entries
+local preferences_prefix = "mediawiki"
 dt.preferences.register(
-  "mediawiki", "username", "string", "Wikimedia username","Wikimedia Commons username",
+  preferences_prefix, "username", "string", "Wikimedia username","Wikimedia Commons username",
   "")
 dt.preferences.register(
-  "mediawiki", "password", "string", "Wikimedia password",
+  preferences_prefix, "password", "string", "Wikimedia password",
   "Wikimedia Commons password (to be stored in plain-text!)", "")
 dt.preferences.register(
-  "mediawiki", "overwrite", "bool", "Commons: Overwrite existing images?",
+  preferences_prefix, "overwrite", "bool", "Commons: Overwrite existing images?",
   "Existing images will be overwritten  without confirmation, otherwise the upload will fail.",
   false)
 dt.preferences.register(
-  "mediawiki", "cat_cam", "bool", "Commons: Categorize camera?",
+  preferences_prefix, "cat_cam", "bool", "Commons: Categorize camera?",
   "A category will be added with the camera information (eg: [[Category:Taken with Fujifilm X-E2 and XF18-55mmF2.8-4 R LM OIS]])",
   false)
 dt.preferences.register(
-  "mediawiki", "namepattern", "string", "Commons: Preferred naming pattern",
+  preferences_prefix, "namepattern", "string", "Commons: Preferred naming pattern",
   'Determines the File: page name, variables are $TITLE, $FILE_NAME, and $DESCRIPTION. Note that $TITLE or $DESCRIPTION is required, and if both are chosen but only one is available then the fallback name will be "$AVAILABLEINFO ($FILE_NAME)"', "$TITLE ($FILE_NAME) $DESCRIPTION")
 dt.preferences.register(
-  "mediawiki", "titleindesc", "bool", "Commons: Use title in description",
+  preferences_prefix, "titleindesc", "bool", "Commons: Use title in description",
   "Use the title in description if both are available: description={{en|1=$TITLE: $DESCRIPTION}}", true)
 
 local function msgout(txt)
@@ -41,14 +42,14 @@ end
 -- Generate image name
 local function make_image_name(image, tmp_exp_path)
   local basename = image.filename:match"[^.]+"
-  local outname = dt.preferences.read("mediawiki", "namepattern", "string")
+  local outname = dt.preferences.read(preferences_prefix, "namepattern", "string")
   if image.title ~= "" and image.description ~= "" then --2 items available
     outname = outname:gsub("$TITLE", image.title)
     outname = outname:gsub("$FILE_NAME", basename)
     outname = outname:gsub("$DESCRIPTION", image.description)
   else
     local presdata = image.title..image.description
-    local user_req = dt.preferences.read("mediawiki", "namepattern", "string")
+    local user_req = dt.preferences.read(preferences_prefix, "namepattern", "string")
     if user_req:find("$TITLE") and user_req:find("$DESCRIPTION") then
       outname = presdata.." ("..basename..")"
     else
@@ -70,7 +71,7 @@ local function fmt_flt(num)
 end
 
 local function get_description(image)
-  if dt.preferences.read("mediawiki", "titleindesc", "bool") and image.description~="" and image.title ~= "" then
+  if dt.preferences.read(preferences_prefix, "titleindesc", "bool") and image.description~="" and image.title ~= "" then
     return image.title..": "..image.description
   elseif image.description~="" then return image.description
   else return image.title
@@ -83,7 +84,7 @@ local function make_image_page(image)
   table.insert(imgpg, "|description={{en|1="..get_description(image).."}}")
   table.insert(imgpg, "|date="..image.exif_datetime_taken) --TODO check format
   table.insert(imgpg, "|source={{own}}")
-  local username = dt.preferences.read("mediawiki", "username", "string")
+  local username = dt.preferences.read(preferences_prefix, "username", "string")
   if image.creator == '' then
     table.insert(imgpg, "|author=[[User:"..username.."|"..username.."]]")
   else
@@ -102,7 +103,7 @@ local function make_image_page(image)
     elseif tag:sub(1,2)=="{{" then table.insert(imgpg, tag)
     end
   end
-  if dt.preferences.read("mediawiki", "cat_cam", "bool") then
+  if dt.preferences.read(preferences_prefix, "cat_cam", "bool") then
     print("catcam enabled")--dbg
     local catcam = ""
     if image.exif_model ~= '' then
@@ -137,7 +138,7 @@ local function register_storage_store(storage, image, format, tmp_exp_path, numb
   local imagepage = make_image_page(image)
   local imagename = make_image_name(image, tmp_exp_path)
   --print(imagepage)
-  MediaWikiApi.uploadfile(tmp_exp_path, imagepage, imagename, dt.preferences.read("mediawiki", "overwrite", "bool"))
+  MediaWikiApi.uploadfile(tmp_exp_path, imagepage, imagename, dt.preferences.read(preferences_prefix, "overwrite", "bool"))
   msgout("exported " .. imagename) -- that is the path also
 end
 
@@ -179,8 +180,8 @@ end
 -- Darktable target storage entry
 
 if MediaWikiApi.login(
-  dt.preferences.read("mediawiki", "username", "string"),
-  dt.preferences.read("mediawiki", "password", "string")) then
+  dt.preferences.read(preferences_prefix, "username", "string"),
+  dt.preferences.read(preferences_prefix, "password", "string")) then
     dt.register_storage(
       "mediawiki", "Wikimedia Commons", register_storage_store,
       register_storage_finalize, register_storage_supported,

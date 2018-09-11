@@ -6,11 +6,11 @@ See also: [Commons:DtMediaWiki](https://commons.wikimedia.org/wiki/Commons:DtMed
 
 ## Dependencies
 
-- lua-sec
+- [lua-sec](https://luarocks.org/modules/brunoos/luasec)
   - Lua bindings for OpenSSL library to provide TLS/SSL communication
-- lua-luajson
+- [lua-luajson](https://luarocks.org/modules/harningt/luajson)
   - JSON parser/encoder for Lua
-- lua-multipart-post
+- [lua-multipart-post](https://luarocks.org/modules/catwell/multipart-post)
   - HTTP Multipart Post helper
 
 Note that `mediawikiapi.lua` is independent of darktable.
@@ -18,7 +18,7 @@ Note that `mediawikiapi.lua` is independent of darktable.
 ## Installation
 
 - Download the plugin from [https://github.com/trougnouf/dtMediaWiki/archive/master.zip](https://github.com/trougnouf/dtMediaWiki/archive/master.zip)
-- Create the darktable plugin directory if it doesn't exist
+- Create the [darktable plugin directory](https://www.darktable.org/usermanual/en/lua_chapter.html#lua_usage) if it doesn't exist
   - `# mkdir /usr/share/darktable/lua/contrib`
 - Copy (or link) the dtMediaWiki directory over there
   - `# cp -r /path/to/dtMediaWiki /usr/share/darktable/lua/contrib`
@@ -29,9 +29,9 @@ Note that `mediawikiapi.lua` is independent of darktable.
 
 ## Usage
 
-- Login to Wikimedia Commons by setting your "Wikimedia username" and "Wikimedia password" in _darktable preferences > lua options_ then restarting darktable.
+- Login to Wikimedia Commons by setting your "Wikimedia username" and "Wikimedia password" in _[darktable preferences](https://www.darktable.org/usermanual/en/preferences_chapter.html) > lua options_ then restarting darktable.
   - This will add the "Wikimedia Commons" entry into target storage.
-- Ensure your image contains the following metadata:
+- Ensure your image contains the following [metadata](https://www.darktable.org/usermanual/en/metadata_editor.html) and [tags](https://www.darktable.org/usermanual/en/tagging.html):
   - **title** and/or **description** – The default output filename is `title (filename) description.ext` or `title (filename).ext` depending on what is available
   - **rights** – Use something compatible with the [`{{self}}`](https://commons.wikimedia.org/wiki/Template:Self) template, some options are [`cc-by-sa-4.0`](https://commons.wikimedia.org/wiki/Template:Cc-by-sa-4.0), [`cc-by-4.0`](https://commons.wikimedia.org/wiki/Template:Cc-by-4.0), [`GFDL`](https://commons.wikimedia.org/wiki/Template:GFDL), see [Commons:Copyright tags](https://commons.wikimedia.org/wiki/Commons:Copyright_tags)
   - **tags** – Categories and templates. Any tag that matches `Category:something` will be added as `[[Category:something]]` (no need to include the brackets), likewise any template matching `{{something}}` will be added as-is.

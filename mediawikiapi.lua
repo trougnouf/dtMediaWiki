@@ -9,6 +9,7 @@ Eckhard Henkel <eckhard.henkel@wikipedia.de>
 Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication
 * lua-luajson: JSON parser/encoder for Lua
+* lua-multipart-post: HTTP Multipart Post helper
   (darktable is not a dependency)
 ]]
 
@@ -111,7 +112,10 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
     text = pagetext,
     comment = 'Uploaded with dtMediaWiki',
     token = MediaWikiApi.getEditToken(),
-    file = {filename="whatevs", file = file_handler:read("*all")},
+    file = {
+        filename = "whatevs",
+        data = file_handler:read("*all"),
+    },
   }
   if overwrite then content["ignorewarnings"] = 'true' end
   res = {}

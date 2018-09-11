@@ -8,6 +8,8 @@ See also: [Commons:DtMediaWiki](https://commons.wikimedia.org/wiki/Commons:DtMed
 	 * Lua bindings for OpenSSL library to provide TLS/SSL communication
 * lua-luajson
 	 * JSON parser/encoder for Lua
+* lua-multipart-post
+	 * HTTP Multipart Post helper
 
 note that mediawiki.lua is independent of darktable.
 
@@ -43,7 +45,6 @@ The image coordinates will be added if they exist, and the creator metadata will
 * darktable developers for an excellent open-source imaging software with a well documented lua API
 * LrMediaWiki developers robinkrahl and Hasenlaeufer for what inspired this and some base code
 * MediaWiki User:Platonides for helping me figure out the cookie issue
-* 'catwell': author of lua-multipart-post and a responsive fellow
 
 ![:)](https://upload.wikimedia.org/wikipedia/commons/3/30/Binette-typo.png)
 

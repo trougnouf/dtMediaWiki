@@ -4,6 +4,7 @@
 Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication
 * lua-luajson: JSON parser/encoder for Lua
+* lua-multipart-post: HTTP Multipart Post helper
 ]]
 
 local dt = require "darktable"

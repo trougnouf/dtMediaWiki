@@ -89,7 +89,9 @@ end
 local function make_image_page(image)
   local imgpg = {"=={{int:filedesc}}==\n{{Information"}
   table.insert(imgpg, "|description={{en|1="..get_description(image).."}}")
-  table.insert(imgpg, "|date="..image.exif_datetime_taken) --TODO check format
+  local date = image.exif_datetime_taken
+  date = date:gsub("(%d%d%d%d):(%d%d):(%d%d)", "%1-%2-%3") -- format date in ISO 8601 / RFC 3339
+  table.insert(imgpg, "|date="..date)
   table.insert(imgpg, "|source={{own}}")
   local username = dt.preferences.read(preferences_prefix, "username", "string")
   local author = dt.preferences.read(preferences_prefix, "authorpattern", "string")

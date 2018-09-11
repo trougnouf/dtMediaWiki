@@ -8,8 +8,7 @@ Dependencies:
 ]]
 
 local dt = require "darktable"
-local gettext = dt.gettext
-local mediawikiapi = require "contrib/dtMediaWiki/mediawikiapi"
+local MediaWikiApi = require "contrib/dtMediaWiki/mediawikiapi"
 
 -- Preference entries
 local preferences_prefix = "mediawiki"
@@ -25,11 +24,15 @@ dt.preferences.register(
   false)
 dt.preferences.register(
   preferences_prefix, "cat_cam", "bool", "Commons: Categorize camera?",
-  "A category will be added with the camera information (eg: [[Category:Taken with Fujifilm X-E2 and XF18-55mmF2.8-4 R LM OIS]])",
+  "A category will be added with the camera information " ..
+  "(eg: [[Category:Taken with Fujifilm X-E2 and XF18-55mmF2.8-4 R LM OIS]])",
   false)
 dt.preferences.register(
   preferences_prefix, "namepattern", "string", "Commons: Preferred naming pattern",
-  'Determines the File: page name, variables are $TITLE, $FILE_NAME, and $DESCRIPTION. Note that $TITLE or $DESCRIPTION is required, and if both are chosen but only one is available then the fallback name will be "$AVAILABLEINFO ($FILE_NAME)"', "$TITLE ($FILE_NAME) $DESCRIPTION")
+  'Determines the File: page name, variables are $TITLE, $FILE_NAME, and $DESCRIPTION. ' ..
+  'Note that $TITLE or $DESCRIPTION is required, and if both are chosen but only one is available ' ..
+  'then the fallback name will be "$AVAILABLEINFO ($FILE_NAME)"',
+  "$TITLE ($FILE_NAME) $DESCRIPTION")
 dt.preferences.register(
   preferences_prefix, "authorpattern", "string", "Commons: Preferred author pattern",
   'Determines the author value; variables are $USERNAME, $CREATOR',
@@ -99,8 +102,8 @@ local function make_image_page(image)
   end
   table.insert(imgpg, "=={{int:license-header}}==")
   table.insert(imgpg, "{{self|"..image.rights.."}}")
-  for i,tag in pairs(dt.tags.get_tags(image)) do
-    local tag = tag.name
+  for _, tag in pairs(dt.tags.get_tags(image)) do
+    tag = tag.name
     if string.sub(tag, 1, 9)=="Category:" then
       table.insert(imgpg, "[["..tag.."]]")
     elseif tag:sub(1,2)=="{{" then table.insert(imgpg, tag)
@@ -108,10 +111,9 @@ local function make_image_page(image)
   end
   if dt.preferences.read(preferences_prefix, "cat_cam", "bool") then
     print("catcam enabled")--dbg
-    local catcam = ""
     if image.exif_model ~= '' then
       local model = image.exif_maker:sub(1,1)..image.exif_maker:sub(2):lower()
-      catcam = "[[Category:Taken with "..model.." "..image.exif_model
+      local catcam = "[[Category:Taken with "..model.." "..image.exif_model
       if image.exif_lens ~= '' then
         catcam = catcam.." and "..image.exif_lens.."]]"
       else catcam = catcam.."]]"
@@ -152,7 +154,8 @@ local function register_storage_finalize(storage, image_table, extra_data)
   msgout("exported "..fcnt.."/"..extra_data["init_img_cnt"].." images to Wikimedia Commons")
 end
 
---A function called to check if a given image format is supported by the Lua storage; this is used to build the dropdown format list for the GUI.
+--A function called to check if a given image format is supported by the Lua storage;
+--This is used to build the dropdown format list for the GUI.
 local function register_storage_supported(storage, format)
     if format.extension == "jpg" or format.extension == "png"
             or format.extension == "tif" or format.extension == "webp" then
@@ -165,16 +168,16 @@ end
 --This function can change the list of exported functions
 local function register_storage_initialize(storage, format, images, high_quality, extra_data)
   local out_images = {}
-  for i,img in pairs(images) do
+  for _, img in pairs(images) do
     if img.rights == '' then
-      msgout("Error: "..img.path.." has no rights, cannot be exported to Wikimedia Commons") --TODO check allowed formats
-      goto post_insertion
+      --TODO check allowed formats
+      msgout("Error: "..img.path.." has no rights, cannot be exported to Wikimedia Commons")
     elseif img.title == '' and img.description == '' then
-      msgout("Error: "..img.path.." is missing a meaningful title and/or description, won't be exported to Wikimedia Commons")
-      goto post_insertion
+      msgout("Error: "..img.path.." is missing a meaningful title and/or description, " ..
+        "won't be exported to Wikimedia Commons")
+    else
+      table.insert(out_images, img)
     end
-    table.insert(out_images, img)
-    ::post_insertion::
   end
   extra_data["init_img_cnt"] = #images
   return out_images

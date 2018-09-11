@@ -15,13 +15,12 @@ Dependencies:
 
 package.path = package.path..';/dtMediaWiki/?.lua'
 package.path = package.path..';/usr/share/darktable/lua/contrib/dtMediaWiki/?.lua'
---TODO local these
-https = require("ssl.https")
-json = require('json')
-ltn12 = require "ltn12"
-mpost = require "multipart-post"
+local https = require("ssl.https")
+local json = require('json')
+local ltn12 = require "ltn12"
+local mpost = require "multipart-post"
 
-MediaWikiApi = {
+local MediaWikiApi = {
     userAgent = string.format('mediawikilua %d.%d', 0,1),
     apiPath = "https://commons.wikimedia.org/w/api.php",
     cookie = {},
@@ -132,7 +131,7 @@ end
 
 
 -- Code adapted from LrMediaWiki:
-MediaWikiUtils = {}
+local MediaWikiUtils = {}
 
 MediaWikiUtils.trace = function(message)
     print(message)
@@ -316,3 +315,5 @@ function MediaWikiApi.login(username, password)
     end
 end
 -- end of LrMediaWiki code
+
+return MediaWikiApi

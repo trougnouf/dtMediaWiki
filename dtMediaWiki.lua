@@ -31,6 +31,10 @@ dt.preferences.register(
   preferences_prefix, "namepattern", "string", "Commons: Preferred naming pattern",
   'Determines the File: page name, variables are $TITLE, $FILE_NAME, and $DESCRIPTION. Note that $TITLE or $DESCRIPTION is required, and if both are chosen but only one is available then the fallback name will be "$AVAILABLEINFO ($FILE_NAME)"', "$TITLE ($FILE_NAME) $DESCRIPTION")
 dt.preferences.register(
+  preferences_prefix, "authorpattern", "string", "Commons: Preferred author pattern",
+  'Determines the author value; variables are $USERNAME, $CREATOR',
+  '[[User:$USERNAME|$CREATOR]]')
+dt.preferences.register(
   preferences_prefix, "titleindesc", "bool", "Commons: Use title in description",
   "Use the title in description if both are available: description={{en|1=$TITLE: $DESCRIPTION}}", true)
 
@@ -85,11 +89,10 @@ local function make_image_page(image)
   table.insert(imgpg, "|date="..image.exif_datetime_taken) --TODO check format
   table.insert(imgpg, "|source={{own}}")
   local username = dt.preferences.read(preferences_prefix, "username", "string")
-  if image.creator == '' then
-    table.insert(imgpg, "|author=[[User:"..username.."|"..username.."]]")
-  else
-    table.insert(imgpg, "|author=[[User:"..username.."|"..image.creator.."]]")
-  end
+  local author = dt.preferences.read(preferences_prefix, "authorpattern", "string")
+  author = author:gsub("$USERNAME", username)
+  author = author:gsub("$CREATOR", image.creator or username)
+  table.insert(imgpg, "|author="..author)
   table.insert(imgpg, "}}")
   if image.latitude ~= nil and image.longitude ~= nil then
     table.insert(imgpg, "{{Location |1="..image.latitude.." |2="..image.longitude.." }}")

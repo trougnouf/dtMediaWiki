@@ -27,19 +27,19 @@ local MediaWikiApi = {
     edit_token = nil
 }
 
-function httpsget(url, reqheaders)
-    local res, code, resheaders, status = https.request {
+local function httpsget(url, reqheaders)
+    local res, code, resheaders, _ = https.request {
         url = url,
         headers = reqheaders
     }
     resheaders.status = code
 
-    return res, respheaders
+    return res, resheaders
 end
 
-function httpspost(url, postBody, reqheaders)
+local function httpspost(url, postBody, reqheaders)
     local res = {}
-    _,code,resheaders,status = https.request{
+    local _, code, resheaders, _ = https.request{
         url = url,
         method="POST",
         headers=reqheaders,
@@ -51,7 +51,7 @@ function httpspost(url, postBody, reqheaders)
     return table.concat(res), resheaders
 end
 
-function throwUserError(text)
+local function throwUserError(text)
     print(text)
 end
 
@@ -68,7 +68,6 @@ function MediaWikiApi.parseCookie(unparsedcookie)
         cvar = string.sub(cvar, icvarcomma+2)
         icvarcomma = string.find(cvar, ",")
       end
-      
       MediaWikiApi.cookie[cvar] = string.sub(crumb, isep+1)
     end
     local nexti = string.find(unparsedcookie,",")
@@ -79,8 +78,7 @@ end
 
 -- generate a cookie string from MediaWikiApi.cookie to send to server
 function MediaWikiApi.cookie2string()
-  prestr = {}
-  cstr = ""
+  local prestr = {}
   for cvar,cval in pairs(MediaWikiApi.cookie) do
       table.insert(prestr,cvar.."="..cval..";")
   end
@@ -104,8 +102,8 @@ end
 
 
 function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
-  file_handler = io.open(filepath)
-  content = {
+  local file_handler = io.open(filepath)
+  local content = {
     action = 'upload',
     filename = filename,
     text = pagetext,
@@ -117,12 +115,12 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
     },
   }
   if overwrite then content["ignorewarnings"] = 'true' end
-  res = {}
-  req = mpost.gen_request(content)
+  local res = {}
+  local req = mpost.gen_request(content)
   req.headers["cookie"] = MediaWikiApi.cookie2string()
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
-  _,code,resheaders = https.request(req)
+  local _, code, resheaders = https.request(req)
   --MediaWikiApi.trace("  Result headers:", resheaders)
   MediaWikiApi.parseCookie(resheaders["set-cookie"])
   return code,resheaders, res
@@ -184,13 +182,13 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
     if post then
         resultBody, resultHeaders = httpspost(path, requestBody, requestHeaders)
     else
-        local resultBody, resultHeaders = httpsget(path .. '?' .. requestBody, requestHeaders)
+        resultBody, resultHeaders = httpsget(path .. '?' .. requestBody, requestHeaders)
     end
 
     MediaWikiApi.trace('  Result status:', resultHeaders.status);
 
     if not resultHeaders.status then
-        throwUserError(LOC("$$$/LrMediaWiki/Api/NoConnection=No network connection."))
+        throwUserError("No network connection")
     elseif resultHeaders.status ~= 200 then
         MediaWikiApi.httpError(resultHeaders.status)
     end

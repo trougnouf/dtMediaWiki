@@ -123,7 +123,7 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
   _,code,resheaders = https.request(req)
-  print(resheaders) -- debug
+  --MediaWikiApi.trace("  Result headers:", resheaders)
   MediaWikiApi.parseCookie(resheaders["set-cookie"])
   return code,resheaders, res
 end
@@ -131,10 +131,8 @@ end
 
 
 -- Code adapted from LrMediaWiki:
-local MediaWikiUtils = {}
-
-MediaWikiUtils.trace = function(message)
-    print(message)
+MediaWikiApi.trace = function(...)
+    print(...)
 end
 
 
@@ -178,22 +176,18 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
         requestHeaders["Content-Length"] = #requestBody
     end
     requestHeaders["Cookie"] = MediaWikiApi.cookie2string()
-    MediaWikiUtils.trace('Performing HTTP request');
-    MediaWikiUtils.trace('Path:')
-    MediaWikiUtils.trace(path)
-    MediaWikiUtils.trace('Request body:');
-    MediaWikiUtils.trace(requestBody);
-    MediaWikiUtils.trace('Request header: ')
+    MediaWikiApi.trace('Performing HTTP request');
+    MediaWikiApi.trace('  Path:', path)
+    MediaWikiApi.trace('  Request body:', requestBody);
 
     local resultBody, resultHeaders
     if post then
         resultBody, resultHeaders = httpspost(path, requestBody, requestHeaders)
     else
-        resultBody, resultHeaders = httpsget(path .. '?' .. requestBody, requestHeaders)
+        local resultBody, resultHeaders = httpsget(path .. '?' .. requestBody, requestHeaders)
     end
 
-    MediaWikiUtils.trace('Result status:');
-    MediaWikiUtils.trace(resultHeaders.status);
+    MediaWikiApi.trace('  Result status:', resultHeaders.status);
 
     if not resultHeaders.status then
         throwUserError(LOC("$$$/LrMediaWiki/Api/NoConnection=No network connection."))
@@ -201,10 +195,8 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
         MediaWikiApi.httpError(resultHeaders.status)
     end
     MediaWikiApi.parseCookie(resultHeaders["set-cookie"])
-    --print("new cookie: "..resultHeaders["set-cookie"])
-    MediaWikiUtils.trace('Result body:');
-    MediaWikiUtils.trace(resultBody);
-    MediaWikiUtils.trace('Result headers:')
+    --MediaWikiApi.trace("new cookie: "..resultHeaders["set-cookie"])
+    MediaWikiApi.trace('  Result body:', resultBody);
     return resultBody
 end
 
@@ -234,8 +226,7 @@ function MediaWikiApi.login(username, password)
     else
         credentials = 'main-account'
     end
-    local msg = 'Credentials: ' .. credentials
-    MediaWikiUtils.trace(msg)
+    MediaWikiApi.trace('Credentials: ' .. credentials)
 
     -- Check if a user is logged in:
     local arguments = {
@@ -247,24 +238,22 @@ function MediaWikiApi.login(username, password)
     local id = jsonres.query.userinfo.id
     local name = jsonres.query.userinfo.name
     if id == '0' or id == 0 then -- not logged in, name is the IP address
-        MediaWikiUtils.trace('Not logged in, need to login')
+        MediaWikiApi.trace('Not logged in, need to login')
     else -- id ~= '0' – logged in
-        msg = 'Logged in as user \"' .. name .. '\" (ID: ' .. id .. ')'
-        MediaWikiUtils.trace(msg)
+        MediaWikiApi.trace('Logged in as user \"' .. name .. '\" (ID: ' .. id .. ')')
         if name == username then -- user is already logged in
-            MediaWikiUtils.trace('No new login needed (1)')
+            MediaWikiApi.trace('No new login needed (1)')
             return true
         else -- name ~= username
             -- Check if name is main-account name of bot-username
             if credentials == 'bot-account' then
                 local pattern = '(.*)@' -- all characters up to "@"
                 if name == string.match(username, pattern) then
-                    MediaWikiUtils.trace('No new login needed (2)')
+                    MediaWikiApi.trace('No new login needed (2)')
                     return true
                 end
             end
-            msg = 'Logout and new login needed with username \"' .. username .. '\".'
-            MediaWikiUtils.trace(msg)
+            MediaWikiApi.trace('Logout and new login needed with username \"' .. username .. '\".')
             MediaWikiApi.logout() -- without this logout a new login MIGHT fail
         end
     end

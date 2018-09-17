@@ -15,8 +15,8 @@ Dependencies:
 
 package.path = package.path..';/dtMediaWiki/?.lua'
 package.path = package.path..';/usr/share/darktable/lua/contrib/dtMediaWiki/?.lua'
-local https = require("ssl.https")
-local json = require('json')
+local https = require "ssl.https"
+local json = require "json"
 local ltn12 = require "ltn12"
 local mpost = require "multipart-post"
 

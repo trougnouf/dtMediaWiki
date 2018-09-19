@@ -1,5 +1,6 @@
 --[[dtMediaWiki is a darktable plugin which exports images to Wikimedia Commons
     Author: Trougnouf (Benoit Brummer) <trougnouf@gmail.com>
+    Contributor: Simon Legner (simon04)
 
 Dependencies:
 * lua-sec: Lua bindings for OpenSSL library to provide TLS/SSL communication

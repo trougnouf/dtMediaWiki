@@ -1,5 +1,6 @@
 --[[
 Author: Trougnouf (Benoit Brummer) <trougnouf@gmail.com>
+Contributor: Simon Legner (simon04)
 
 mediawikiapi.lua uses some code adapted from LrMediaWiki
 LrMediaWiki authors:

@@ -43,7 +43,9 @@ The image coordinates will be added if they exist, and the creator metadata will
 - Iulia and Leslie for excellent coworking companionship and love
 - darktable developers for an excellent open-source imaging software with a well documented [Lua API](https://www.darktable.org/lua-api/)
 - [LrMediaWiki](https://github.com/Hasenlaeufer/LrMediaWiki) developers [robinkrahl](https://github.com/robinkrahl) and [Hasenlaeufer](https://github.com/Hasenlaeufer) for what inspired this and some base code
-- MediaWiki User:Platonides for helping me figure out the cookie issue
+- MediaWiki [User:Platonides](https://www.mediawiki.org/wiki/User:Platonides) for helping me figure out the cookie issue
+- [catwell](https://github.com/catwell): author of lua-multipart-post and a responsive fellow
+- [simon04](https://github.com/simon04): second user and first contributor
 
 ![:)](https://upload.wikimedia.org/wikipedia/commons/3/30/Binette-typo.png)
 

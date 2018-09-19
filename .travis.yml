@@ -1,0 +1,19 @@
+language: python
+sudo: false
+
+env:
+  - LUA="lua=5.2"
+
+before_install:
+  - pip install hererocks
+  - hererocks here --$LUA -r latest
+  - source here/bin/activate
+  - luarocks install luasec
+  - luarocks install luajson
+  - luarocks install multipart-post
+  - luarocks install luacheck
+
+script:
+  - luac -p *.lua
+  - luacheck -v
+  - luacheck *.lua -a --max-line-length=125

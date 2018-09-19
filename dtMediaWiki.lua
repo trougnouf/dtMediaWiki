@@ -44,16 +44,27 @@ dt.preferences.register(
     "(eg: [[Category:Taken with Fujifilm X-E2 and XF18-55mmF2.8-4 R LM OIS]])",
   false
 )
-dt.preferences.register(
-  preferences_prefix,
-  "namepattern",
-  "string",
-  "Commons: Preferred naming pattern",
-  "Determines the File: page name, variables are $TITLE, $FILE_NAME, and $DESCRIPTION. " ..
-    "Note that $TITLE or $DESCRIPTION is required, and if both are chosen but only one is available " ..
-      'then the fallback name will be "$AVAILABLEINFO ($FILE_NAME)"',
-  "$TITLE ($FILE_NAME) $DESCRIPTION"
-)
+local namepattern_default = "$TITLE ($FILE_NAME) $DESCRIPTION"
+local namepattern_widget =
+  dt.new_widget("entry") {
+  tooltip = table.concat(
+    {
+      "Determines the `File:` page name",
+      "recognized variables:",
+      "$FILE_NAME - basename of the input image",
+      "$TITLE - title from metadata",
+      "$DESCRIPTION - description from metadata",
+      "Note that $TITLE or $DESCRIPTION is required, and if both are chosen but only one is available " ..
+        "then the fallback name will be `$TITLE$DESCRIPTION ($FILE_NAME)`"
+    },
+    "\n"
+  ),
+  text = dt.preferences.read(preferences_prefix, "namepattern", "string"),
+  reset_callback = function(self)
+    self.text = namepattern_default
+    dt.preferences.write(preferences_prefix, "namepattern", "string", self.text)
+  end
+}
 dt.preferences.register(
   preferences_prefix,
   "authorpattern",
@@ -79,21 +90,19 @@ end
 -- Generate image name
 local function make_image_name(image, tmp_exp_path)
   local basename = image.filename:match "[^.]+"
-  local outname = dt.preferences.read(preferences_prefix, "namepattern", "string")
+  local outname = namepattern_widget.text or namepattern_default
+  dt.preferences.write(preferences_prefix, "namepattern", "string", outname)
+  local presdata = image.title .. image.description
   if image.title ~= "" and image.description ~= "" then --2 items available
     outname = outname:gsub("$TITLE", image.title)
     outname = outname:gsub("$FILE_NAME", basename)
     outname = outname:gsub("$DESCRIPTION", image.description)
+  elseif outname:find("$TITLE") and outname:find("$DESCRIPTION") then
+    outname = presdata .. " (" .. basename .. ")"
   else
-    local presdata = image.title .. image.description
-    local user_req = dt.preferences.read(preferences_prefix, "namepattern", "string")
-    if user_req:find("$TITLE") and user_req:find("$DESCRIPTION") then
-      outname = presdata .. " (" .. basename .. ")"
-    else
-      outname = outname:gsub("$TITLE", presdata)
-      outname = outname:gsub("$FILE_NAME", basename)
-      outname = outname:gsub("$DESCRIPTION", presdata)
-    end
+    outname = outname:gsub("$TITLE", presdata)
+    outname = outname:gsub("$FILE_NAME", basename)
+    outname = outname:gsub("$DESCRIPTION", presdata)
   end
   local ext = tmp_exp_path:match "[^.]+$"
   return outname .. "." .. ext
@@ -243,7 +252,8 @@ if
     register_storage_store,
     register_storage_finalize,
     register_storage_supported,
-    register_storage_initialize
+    register_storage_initialize,
+    namepattern_widget
   )
 else
   msgout("Unable to log into Wikimedia Commons, export disabled.")

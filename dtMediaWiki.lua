@@ -68,7 +68,6 @@ local namepattern_widget =
   end
 }
 
-
 dt.preferences.register(
   preferences_prefix,
   "authorpattern",
@@ -252,7 +251,7 @@ local function register_storage_initialize(storage, format, images, high_quality
   return out_images
 end
 
--- widgets shown in lightroom
+-- widgets shown in lighttable
 local export_widgets =
 dt.new_widget("box") {
   dt.new_widget("box") {

@@ -20,27 +20,13 @@ dt.preferences.register(
   "Wikimedia Commons username",
   ""
 )
-local password_widget =
-  dt.new_widget("entry") {
-  text = dt.preferences.read(preferences_prefix, "password", "string"),
-  reset_callback = function(self)
-    self.text = ""
-    dt.preferences.write(preferences_prefix, "password", "string", self.text)
-  end
-}
-password_widget.is_password = 1
-local function password_set_callback(password_widget)
-    print("setting callback")
-end
---password_widget.is_password = true
 dt.preferences.register(
   preferences_prefix,
   "password",
-  "lua",
+  "string",
   "Wikimedia password",
   "Wikimedia Commons password (to be stored in plain-text!)",
-  "",
-  password_widget, password_set_callback
+  ""
 )
 dt.preferences.register(
   preferences_prefix,
@@ -97,15 +83,6 @@ dt.preferences.register(
   true
 )
 
---local comment_widget =
---  dt.new_widget("entry") {
---  tooltip = 'Comment will be "Uploaded with dtMediaWiki - $comment"'),
---  text = dt.preferences.read(preferences_prefix, "namepattern", "string"),
---  reset_callback = function(self)
---    self.text = namepattern_default
---    dt.preferences.write(preferences_prefix, "namepattern", "string", self.text)
---  end
---}
 local function msgout(txt)
   print(txt)
   dt.print(txt)

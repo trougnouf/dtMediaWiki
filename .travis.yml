@@ -16,4 +16,4 @@ before_install:
 script:
   - luac -p *.lua
   - luacheck -v
-  - luacheck *.lua -a --max-line-length=125
+  - luacheck *.lua

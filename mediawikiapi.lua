@@ -104,13 +104,13 @@ function MediaWikiApi.getEditToken()
   return MediaWikiApi.edit_token
 end
 
-function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite)
+function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite, comment)
   local file_handler = io.open(filepath)
   local content = {
     action = "upload",
     filename = filename,
     text = pagetext,
-    comment = "Uploaded with dtMediaWiki",
+    comment = comment,
     token = MediaWikiApi.getEditToken(),
     file = {
       filename = "whatevs",

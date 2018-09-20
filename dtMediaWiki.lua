@@ -46,6 +46,7 @@ dt.preferences.register(
   false
 )
 local namepattern_default = "$TITLE ($FILE_NAME) $DESCRIPTION"
+
 local namepattern_widget =
   dt.new_widget("entry") {
   tooltip = table.concat(
@@ -66,6 +67,8 @@ local namepattern_widget =
     dt.preferences.write(preferences_prefix, "namepattern", "string", self.text)
   end
 }
+
+
 dt.preferences.register(
   preferences_prefix,
   "authorpattern",
@@ -186,6 +189,15 @@ local function make_image_page(image)
   return imgpg
 end
 
+-- comment widget shown in lighttable
+local comment_widget =
+  dt.new_widget("entry") {
+  text = "Uploaded with dtMediaWiki",
+  reset_callback = function(self)
+    self.text = "Uploaded with dtMediaWiki"
+  end
+}
+
 --This function is called once for each exported image
 local function register_storage_store(storage, image, format, tmp_exp_path, number, total, high_quality, extra_data)
   local imagepage = make_image_page(image)
@@ -195,7 +207,8 @@ local function register_storage_store(storage, image, format, tmp_exp_path, numb
     tmp_exp_path,
     imagepage,
     imagename,
-    dt.preferences.read(preferences_prefix, "overwrite", "bool")
+    dt.preferences.read(preferences_prefix, "overwrite", "bool"),
+    comment_widget.text
   )
   msgout("exported " .. imagename) -- that is the path also
 end
@@ -239,8 +252,22 @@ local function register_storage_initialize(storage, format, images, high_quality
   return out_images
 end
 
--- Darktable target storage entry
+-- widgets shown in lightroom
+local export_widgets =
+dt.new_widget("box") {
+  dt.new_widget("box") {
+    orientation = "horizontal",
+    dt.new_widget("label") {label = "Naming pattern:"},
+    namepattern_widget,
+  },
+  dt.new_widget("box") {
+    orientation = "horizontal",
+    dt.new_widget("label") {label = "Comment:"},
+    comment_widget
+  }
+}
 
+-- Darktable target storage entry
 if
   MediaWikiApi.login(
     dt.preferences.read(preferences_prefix, "username", "string"),
@@ -254,7 +281,7 @@ if
     register_storage_finalize,
     register_storage_supported,
     register_storage_initialize,
-    namepattern_widget
+    export_widgets
   )
 else
   msgout("Unable to log into Wikimedia Commons, export disabled.")

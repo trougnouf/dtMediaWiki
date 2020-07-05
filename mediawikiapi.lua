@@ -126,9 +126,9 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite, commen
   req.headers["cookie"] = MediaWikiApi.cookie2string()
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
-  local _, code, resheaders = https.request(req)
-  jsonres = json.decode(table.concat(res))
-  success = jsonres.upload.result == 'Success'
+  local _, _, resheaders = https.request(req)
+  local jsonres = json.decode(table.concat(res))
+  local success = jsonres.upload.result == 'Success'
   MediaWikiApi.parseCookie(resheaders["set-cookie"])
   return success
 end

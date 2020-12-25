@@ -8,9 +8,7 @@ before_install:
   - pip install hererocks
   - hererocks here --$LUA -r latest
   - source here/bin/activate
-  - luarocks install luasec
-  - luarocks install luajson
-  - luarocks install multipart-post
+  - luarocks make
   - luarocks install luacheck
 
 script:

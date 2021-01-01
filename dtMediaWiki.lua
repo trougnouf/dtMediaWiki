@@ -9,7 +9,7 @@ Dependencies:
 ]]
 local dt = require "darktable"
 local MediaWikiApi = require "contrib/dtMediaWiki/lib/mediawikiapi"
-local version = 51
+local version = 52
 
 -- Use this _ function for translatable strings
 local gettext = dt.gettext
@@ -353,7 +353,8 @@ local function register_storage_initialize(_, _, images, _, extra_data)
     elseif img.title == "" and img.description == "" then
       msgout(
         _("Error: ") ..
-          img.path .. _(" is missing a meaningful title and/or description, ") .. _("won't be exported to Wikimedia Commons")
+          img.path .. _(" is missing a meaningful title and/or description, ") ..
+          _("won't be exported to Wikimedia Commons")
       )
     else
       table.insert(out_images, img)

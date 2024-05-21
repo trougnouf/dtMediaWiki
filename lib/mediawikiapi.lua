@@ -133,10 +133,27 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite, commen
   return success
 end
 
--- Code adapted from LrMediaWiki:
-MediaWikiApi.trace = function(...)
-  print(...)
+-- Function to sanitize sensitive information in the string
+local function sanitize_output(str)
+  -- Replace password values with '***'
+  str = string.gsub(str, "password[=|\":\"][^[&|}]+", "password=***")
+  -- Replace token values with '***'
+  str = string.gsub(str, "token[=|\":\"][^[&|}]+", "token=***")
+  return str
 end
+
+-- Overwrite the trace function to use the sanitize_output function
+MediaWikiApi.trace = function(...)
+  local args = {...}
+  for i, v in ipairs(args) do
+    if type(v) == "string" then
+      args[i] = sanitize_output(v)
+    end
+  end
+  print(table.unpack(args))
+end
+
+-- Code adapted from LrMediaWiki:
 
 --- URL-encode a string according to RFC 3986.
 -- Based on http://lua-users.org/wiki/StringRecipes

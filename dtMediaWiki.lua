@@ -329,7 +329,7 @@ local comment_widget =
 }
 
 --This function is called once for each exported image
-local function register_storage_store(_, image, _, tmp_exp_path, _, _, _, _)
+local function register_storage_store(_, image, _, tmp_exp_path, _, _, _, extra_data)
   msgout(gettext.dgettext("dtMediaWiki", ("register_storage_store: exporting the following image:")))
   msgout(tmp_exp_path .. '(' .. image.title .. ')')
   for _, tag in pairs(dt.tags.get_tags(image)) do
@@ -351,16 +351,18 @@ local function register_storage_store(_, image, _, tmp_exp_path, _, _, _, _)
   msgout(gettext.dgettext("dtMediaWiki", ("exported ")) .. imagename) -- that is the path also
   else
   msgout(gettext.dgettext("dtMediaWiki", ("Failed to export ")) .. imagename)
+  extra_data["failures_count"] = extra_data["failures_count"] + 1
   end
 end
 
 --This function is called once all images are processed and all store calls are finished.
 local function register_storage_finalize(_, image_table, extra_data)
-  local fcnt = 0
+  local files_cnt = 0
   for _ in pairs(image_table) do
-    fcnt = fcnt + 1
+    files_cnt = files_cnt + 1
   end
-  msgout(gettext.dgettext("dtMediaWiki", ("exported ")) .. fcnt .. "/" .. extra_data["init_img_cnt"] ..
+  files_cnt = files_cnt - extra_data["failures_count"]
+  msgout(gettext.dgettext("dtMediaWiki", ("exported ")) .. files_cnt .. "/" .. extra_data["init_img_cnt"] ..
     gettext.dgettext("dtMediaWiki", (" images to Wikimedia Commons")))
 end
 
@@ -368,18 +370,25 @@ end
 --This is used to build the dropdown format list for the GUI.
 local function register_storage_supported(_, format)
   local ext = format.extension
-  return ext == "jpg" or ext == "png" or ext == "tif" or ext == "webp"
+  return ext == "jpg" or ext == "png" or ext == "tif" or ext == "webp" or ext == ""  -- "" is for the "copy" mode
 end
 
 --A function called before storage happens
 --This function can change the list of exported functions
 local function register_storage_initialize(_, _, images, _, extra_data)
   local out_images = {}
+  
   for _, img in pairs(images) do
+    local extension = img.path:match "[^.]+$"
     -- BUG? images contain "0" value (with key 3 in tested instance) instead of dt_lua_image_t
 	  if type(img) == 'number' then
 		  msgout(gettext.dgettext("dtMediaWiki",
 		  ("BUG: dt.register_storage.initialize sent a number instead of dt_lua_image_t in images table: ")) .. img)
+    -- check if extension is supported (register_storage_supported is not reliable because of the "copy" mode)
+    elseif extension ~= "jpg" and extension ~= "png" and extension ~= "tif" and extension ~= "webp" then
+      -- assert that copy mode is used
+      msgout(gettext.dgettext("dtMediaWiki", ("Error: ")) .. img.path ..
+        gettext.dgettext("dtMediaWiki", (" has an unsupported extension, won't be exported to Wikimedia Commons in copy mode")))
     elseif img.rights == "" then
       msgout(gettext.dgettext("dtMediaWiki", ("Error: ")) .. img.path ..
         gettext.dgettext("dtMediaWiki", (" has no rights, cannot be exported to Wikimedia Commons")))
@@ -393,7 +402,9 @@ local function register_storage_initialize(_, _, images, _, extra_data)
       table.insert(out_images, img)
     end
   end
+  extra_data["failures_count"] = 0
   extra_data["init_img_cnt"] = #images
+  
   return out_images
 end
 

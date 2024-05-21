@@ -1,6 +1,8 @@
 # dtMediaWiki
 
-Wikimedia Commons export plugin for [darktable](https://www.darktable.org/)
+Wikimedia Commons export plugin for [darktable](https://www.darktable.org/).
+
+Note that [your images always will be reencoded](https://github.com/trougnouf/dtMediaWiki/issues/14#issuecomment-2122181739).
 
 See also: [Commons:DtMediaWiki](https://commons.wikimedia.org/wiki/Commons:DtMediaWiki)
 

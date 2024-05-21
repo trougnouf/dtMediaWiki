@@ -38,30 +38,7 @@ local function dbgout(str)
 end
 -- Preference entries
 local preferences_prefix = "mediawiki"
-dt.preferences.register(
-  preferences_prefix,
-  "username",
-  "string",
-  _('Wikimedia username'),
-  _("Wikimedia Commons username"),
-  ""
-)
-dt.preferences.register(
-  preferences_prefix,
-  "password",
-  "string",  -- TODO Use Lua password storage once in release. See https://github.com/darktable-org/darktable/pull/7508
-  _("Wikimedia password"),
-  _("Wikimedia Commons password (to be stored in plain-text!)"),
-  ""
-)
-dt.preferences.register(
-  preferences_prefix,
-  "overwrite",
-  "bool",
-  _("Commons: Overwrite existing images?"),
-  _("Existing images will be overwritten  without confirmation, otherwise the upload will fail."),
-  false
-)
+
 dt.preferences.register(
   preferences_prefix,
   "cat_cam",
@@ -79,6 +56,42 @@ dt.preferences.register(
   _("Commons: Templates to be placed in {{Information |description= ...}}"),
   _('These templates are placed in the {{Information |description= ...}} field. (comma-separated)'),
   "Description,Depicted person,en,de,fr,es,ja,ru,zh,it,pt,ar"
+)
+
+dt.preferences.register(
+  preferences_prefix,
+  "overwrite",
+  "bool",
+  _("Commons: Overwrite existing images?"),
+  _("Existing images will be overwritten  without confirmation, otherwise the upload will fail."),
+  false
+)
+
+dt.preferences.register(
+  preferences_prefix,
+  "authorpattern",
+  "string",
+  _("Commons: Preferred author pattern"),
+  _("Determines the author value; variables are username, $CREATOR"),
+  "[[User:$USERNAME|$CREATOR]]"
+)
+
+dt.preferences.register(
+  preferences_prefix,
+  "password",
+  "string",  -- TODO Use Lua password storage once in release. See https://github.com/darktable-org/darktable/pull/7508
+  _("Wikimedia password"),
+  _("Wikimedia Commons password (to be stored in plain-text!)"),
+  ""
+)
+
+dt.preferences.register(
+  preferences_prefix,
+  "username",
+  "string",
+  _('Wikimedia username'),
+  _("Wikimedia Commons username"),
+  ""
 )
 
 local namepattern_default = "$TITLE ($FILE_NAME)"
@@ -116,23 +129,6 @@ local language_widget =
   end
 }
 
-dt.preferences.register(
-  preferences_prefix,
-  "authorpattern",
-  "string",
-  _("Commons: Preferred author pattern"),
-  _("Determines the author value; variables are username, $CREATOR"),
-  "[[User:$USERNAME|$CREATOR]]"
-)
-dt.preferences.register(
-  preferences_prefix,
-  "titleindesc",
-  "bool",
-  _("Commons: Use title in description"),
-  _("Use the title in description if both are available: description={{en|1=$TITLE: $DESCRIPTION}}"),
-  false
-)
-
 -- Generate image name
 local function make_image_name(image, tmp_exp_path)
   local basename = image.filename:match "[^.]+"
@@ -161,10 +157,7 @@ end
 
 -- Get description field from the description (and optionally title) metadata
 local function get_description(image)
-  local titleindesc = dt.preferences.read(preferences_prefix, "titleindesc", "bool")
-  if titleindesc and image.description ~= "" and image.title ~= "" then
-    return image.title .. ": " .. image.description
-  elseif image.description ~= "" then
+  if image.description ~= "" then
     return image.description
   else
     return image.title

@@ -25,7 +25,7 @@ Note that `mediawikiapi.lua` is independent of darktable.
 - Activate the plugin in your darktable luarc config file by adding `require "contrib/dtMediaWiki/dtMediaWiki"`
   - `$ echo 'require "contrib/dtMediaWiki/dtMediaWiki"' >> ~/.config/darktable/luarc`
 
-… or simply use the [Arch Linux package](https://aur.archlinux.org/packages/darktable-plugin-dtmediawiki-git/) and activate the plugin.
+… or simply use the [Arch Linux package](https://aur.archlinux.org/packages/darktable-plugin-dtmediawiki-git/) or [Gentoo package](https://github.com/gentoo/guru/tree/master/media-plugins/dtmediawiki) and activate the plugin.
 
 ## Usage
 

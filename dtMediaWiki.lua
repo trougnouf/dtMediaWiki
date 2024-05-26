@@ -369,6 +369,7 @@ local function _register_storage_store_final_format_check(fn)
   local extension = fn:match("[^.]+$"):lower()
   if extension ~= "jpg" and extension ~= "png" and extension ~= "tif" and extension ~= "webp" then
     -- TODO would be nice to assert that copy mode is used
+    -- TODO add avif when this ticket will be solved https://phabricator.wikimedia.org/T257719
     msgout(gettext.dgettext("dtMediaWiki",
       ("dtMediaWiki._register_storage_store_final_format_check warning: using copy mode from an unsupported image format is known to cause a crash.")))
     msgout(gettext.dgettext("dtMediaWiki", ("Error: ")) .. fn ..

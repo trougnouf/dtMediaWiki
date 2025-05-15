@@ -122,7 +122,7 @@ dt.preferences.register(
   ""
 )
 
-local namepattern_default = "$TITLE ($FILE_NAME)"
+local namepattern_default = "$FILE_NAME"
 
 local namepattern_widget =
     dt.new_widget("entry") {

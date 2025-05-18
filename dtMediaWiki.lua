@@ -441,12 +441,6 @@ local function register_storage_initialize(_, _, images, _, extra_data)
     elseif get_license(img) == "" then
       msgout(gettext.dgettext("dtMediaWiki", ("Error: ")) .. img.path ..
         gettext.dgettext("dtMediaWiki", (" has no rights, cannot be exported to Wikimedia Commons")))
-    elseif img.title == "" and img.description == "" then
-      msgout(
-        gettext.dgettext("dtMediaWiki", ("Error: ")) ..
-        img.path .. gettext.dgettext("dtMediaWiki", (" is missing a meaningful title and/or description, ")) ..
-        gettext.dgettext("dtMediaWiki", ("won't be exported to Wikimedia Commons"))
-      )
     else
       table.insert(out_images, img)
     end

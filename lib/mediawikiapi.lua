@@ -105,11 +105,16 @@ function MediaWikiApi.getEditToken()
 end
 
 function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite, comment)
+
+  -- Otherwise will fail, see https://github.com/trougnouf/dtMediaWiki/issues/29
+  local filename_replaced = string.gsub(filename, "'", '')
+  filename_replaced = string.gsub(filename_replaced, '"', '')
+  
   local file_handler = io.open(filepath)
   local content = {
     action = "upload",
     format = "json",
-    filename = filename,
+    filename = filename_replaced,
     text = pagetext,
     comment = comment,
     token = MediaWikiApi.getEditToken(),

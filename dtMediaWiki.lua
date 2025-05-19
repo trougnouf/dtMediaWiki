@@ -72,7 +72,7 @@ dt.preferences.register(
   "authorpattern",
   "string",
   translate("Commons: Preferred author pattern"),
-  translate("Determines the author value; variables are username, $CREATOR"),
+  translate("Determines the author value; variables are $USERNAME, $CREATOR"),
   "[[User:$USERNAME|$CREATOR]]"
 )
 

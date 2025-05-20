@@ -166,7 +166,6 @@ local function make_image_name(image, tmp_exp_path)
   if outname_pattern == nil or outname_pattern == '' then
     outname_pattern = namepattern_default
   end
-  dt.preferences.write(preferences_prefix, "namepattern", "string", outname_pattern)
 
   local final_outname = outname_pattern
   final_outname = final_outname:gsub("%$FILE_NAME", basename)

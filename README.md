@@ -2,6 +2,8 @@
 
 Wikimedia Commons export plugin for [darktable](https://www.darktable.org/)
 
+![screenshot](https://upload.wikimedia.org/wikipedia/commons/1/16/DtMediaWiki69--preferences-and-categories.png)
+
 See also: [Commons:DtMediaWiki](https://commons.wikimedia.org/wiki/Commons:DtMediaWiki)
 
 ## Dependencies

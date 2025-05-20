@@ -495,6 +495,7 @@ if
       dt.preferences.read(preferences_prefix, "password", "string")
     )
 then
+  -- https://docs.darktable.org/lua/stable/lua.api.manual/darktable/darktable.register_storage
   dt.register_storage(
     "mediawiki",
     "Wikimedia Commons",

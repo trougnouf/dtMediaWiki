@@ -76,6 +76,15 @@ dt.preferences.register(
   "[[User:$USERNAME|$CREATOR]]"
 )
 
+dt.preferences.register(
+  preferences_prefix,
+  "namepattern",
+  "string",
+  translate("Commons: Preferred filename pattern"),
+  translate("Determines the filename value; variables are $TITLE, $DESCRIPTION, $FILE_NAME"),
+  "$TITLE ($FILE_NAME)"
+)
+
 -- FIXME: can't figure enum out so using a text field in the meantime
 -- see also: https://docs.darktable.org/lua/stable/lua.api.manual/darktable/darktable.preferences/#darktablepreferencesregister
 -- dt.preferences.register(
@@ -122,7 +131,7 @@ dt.preferences.register(
   ""
 )
 
-local namepattern_default = "$TITLE ($FILE_NAME)"
+local namepattern_default = dt.preferences.read(preferences_prefix, "namepattern", "string")
 
 local namepattern_widget =
     dt.new_widget("entry") {

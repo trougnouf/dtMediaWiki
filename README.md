@@ -40,6 +40,10 @@ Note that `mediawikiapi.lua` is independent of darktable.
 
 The image coordinates will be added if they exist, and the creator metadata will be added as `[[User:Wikimedia username|creator]]` if it has been set.
 
+## See also
+
+All tools for uploading to Wikimedia Commons https://commons.wikimedia.org/wiki/Commons:Upload_tools
+
 ## Thanks
 
 - Iulia and Leslie for excellent coworking companionship and love

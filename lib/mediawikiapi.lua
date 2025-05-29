@@ -58,25 +58,70 @@ local function throwUserError(text)
 end
 
 -- parse a received cookie and update MediaWikiApi.cookie
-function MediaWikiApi.parseCookie(unparsedcookie)
-  while unparsedcookie and string.len(unparsedcookie) > 0 do
-    local i = string.find(unparsedcookie, ";")
-    local crumb = string.sub(unparsedcookie, 1, i - 1)
-    local isep = string.find(crumb, "=")
-    if isep then
-      local cvar = string.sub(crumb, 1, isep - 1)
-      local icvarcomma = string.find(cvar, ",")
-      while icvarcomma do
-        cvar = string.sub(cvar, icvarcomma + 2)
-        icvarcomma = string.find(cvar, ",")
-      end
-      MediaWikiApi.cookie[cvar] = string.sub(crumb, isep + 1)
+function MediaWikiApi.parseCookie(unparsedcookie_header) -- Renamed for clarity
+  if not unparsedcookie_header or string.len(unparsedcookie_header) == 0 then -- Guard against nil or empty input
+    return
+  end
+
+  local current_cookie_definitions = unparsedcookie_header
+
+  while current_cookie_definitions and string.len(current_cookie_definitions) > 0 do
+    -- Trim leading whitespace from the remaining definitions string for the current iteration
+    current_cookie_definitions = string.match(current_cookie_definitions, "^%s*(.*)")
+    if string.len(current_cookie_definitions) == 0 then
+      break -- Nothing left to parse
     end
-    local nexti = string.find(unparsedcookie, ",")
-    if not nexti then
-      return
+
+    -- Isolate the current cookie definition string (up to the next comma, or the whole remaining string)
+    local next_comma_pos = string.find(current_cookie_definitions, ",")
+    local single_cookie_def_str
+    local remaining_definitions_after_this = ""
+
+    if next_comma_pos then
+      single_cookie_def_str = string.sub(current_cookie_definitions, 1, next_comma_pos - 1)
+      remaining_definitions_after_this = string.sub(current_cookie_definitions, next_comma_pos + 1)
+    else
+      single_cookie_def_str = current_cookie_definitions
+      -- remaining_definitions_after_this remains an empty string, loop will terminate
     end
-    unparsedcookie = string.sub(unparsedcookie, nexti + 2)
+    
+    single_cookie_def_str = string.match(single_cookie_def_str, "^%s*(.-)%s*$") -- Trim whitespace from this single definition
+
+    if string.len(single_cookie_def_str) > 0 then
+        -- Now, find the semicolon within this single_cookie_def_str to separate name=value from attributes
+        local semicolon_in_def_pos = string.find(single_cookie_def_str, ";")
+        local crumb -- This is the "name=value" part
+
+        if semicolon_in_def_pos then
+          crumb = string.sub(single_cookie_def_str, 1, semicolon_in_def_pos - 1)
+        else
+          crumb = single_cookie_def_str -- No semicolon, so the whole definition is the name=value part
+        end
+        crumb = string.match(crumb, "^%s*(.-)%s*$") -- Trim whitespace from the extracted crumb
+
+        local equals_sep_pos = string.find(crumb, "=")
+        if equals_sep_pos then
+          local cvar = string.sub(crumb, 1, equals_sep_pos - 1)
+          local cval = string.sub(crumb, equals_sep_pos + 1)
+
+          -- Original logic for transforming cvar (e.g., stripping "Set-Cookie, " prefixes)
+          local icvarcomma = string.find(cvar, ",")
+          while icvarcomma do
+            cvar = string.sub(cvar, icvarcomma + 2) -- Assumes skipping ", "
+            icvarcomma = string.find(cvar, ",")
+          end
+          
+          -- Trim cvar and cval before storing
+          cvar = string.match(cvar, "^%s*(.-)%s*$")
+          cval = string.match(cval, "^%s*(.-)%s*$")
+
+          if string.len(cvar) > 0 then -- Ensure cvar is not empty after potential stripping
+            MediaWikiApi.cookie[cvar] = cval
+          end
+        end
+    end
+    
+    current_cookie_definitions = remaining_definitions_after_this -- Move to the next part of the string
   end
 end
 
@@ -338,3 +383,4 @@ end
 -- end of LrMediaWiki code
 
 return MediaWikiApi
+

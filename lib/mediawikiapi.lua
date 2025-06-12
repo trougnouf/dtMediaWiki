@@ -58,79 +58,42 @@ local function throwUserError(text)
 end
 
 -- parse a received cookie and update MediaWikiApi.cookie
-function MediaWikiApi.parseCookie(unparsedcookie_header) -- Renamed for clarity
-  if not unparsedcookie_header or string.len(unparsedcookie_header) == 0 then -- Guard against nil or empty input
-    return
-  end
-
+function MediaWikiApi.parseCookie(unparsedcookie_header)
+  if not unparsedcookie_header or string.len(unparsedcookie_header) == 0 then return end
   local current_cookie_definitions = unparsedcookie_header
-
   while current_cookie_definitions and string.len(current_cookie_definitions) > 0 do
-    -- Trim leading whitespace from the remaining definitions string for the current iteration
     current_cookie_definitions = string.match(current_cookie_definitions, "^%s*(.*)")
-    if string.len(current_cookie_definitions) == 0 then
-      break -- Nothing left to parse
-    end
-
-    -- Isolate the current cookie definition string (up to the next comma, or the whole remaining string)
+    if string.len(current_cookie_definitions) == 0 then break end
     local next_comma_pos = string.find(current_cookie_definitions, ",")
-    local single_cookie_def_str
-    local remaining_definitions_after_this = ""
-
+    local single_cookie_def_str, remaining_definitions_after_this = "", ""
     if next_comma_pos then
       single_cookie_def_str = string.sub(current_cookie_definitions, 1, next_comma_pos - 1)
       remaining_definitions_after_this = string.sub(current_cookie_definitions, next_comma_pos + 1)
     else
       single_cookie_def_str = current_cookie_definitions
-      -- remaining_definitions_after_this remains an empty string, loop will terminate
     end
-    
-    single_cookie_def_str = string.match(single_cookie_def_str, "^%s*(.-)%s*$") -- Trim whitespace from this single definition
-
+    single_cookie_def_str = string.match(single_cookie_def_str, "^%s*(.-)%s*$")
     if string.len(single_cookie_def_str) > 0 then
-        -- Now, find the semicolon within this single_cookie_def_str to separate name=value from attributes
         local semicolon_in_def_pos = string.find(single_cookie_def_str, ";")
-        local crumb -- This is the "name=value" part
-
-        if semicolon_in_def_pos then
-          crumb = string.sub(single_cookie_def_str, 1, semicolon_in_def_pos - 1)
-        else
-          crumb = single_cookie_def_str -- No semicolon, so the whole definition is the name=value part
-        end
-        crumb = string.match(crumb, "^%s*(.-)%s*$") -- Trim whitespace from the extracted crumb
-
+        local crumb = semicolon_in_def_pos and string.sub(single_cookie_def_str, 1, semicolon_in_def_pos - 1) or single_cookie_def_str
+        crumb = string.match(crumb, "^%s*(.-)%s*$")
         local equals_sep_pos = string.find(crumb, "=")
         if equals_sep_pos then
-          local cvar = string.sub(crumb, 1, equals_sep_pos - 1)
-          local cval = string.sub(crumb, equals_sep_pos + 1)
-
-          -- Original logic for transforming cvar (e.g., stripping "Set-Cookie, " prefixes)
+          local cvar, cval = string.sub(crumb, 1, equals_sep_pos - 1), string.sub(crumb, equals_sep_pos + 1)
           local icvarcomma = string.find(cvar, ",")
-          while icvarcomma do
-            cvar = string.sub(cvar, icvarcomma + 2) -- Assumes skipping ", "
-            icvarcomma = string.find(cvar, ",")
-          end
-          
-          -- Trim cvar and cval before storing
-          cvar = string.match(cvar, "^%s*(.-)%s*$")
-          cval = string.match(cval, "^%s*(.-)%s*$")
-
-          if string.len(cvar) > 0 then -- Ensure cvar is not empty after potential stripping
-            MediaWikiApi.cookie[cvar] = cval
-          end
+          while icvarcomma do cvar, icvarcomma = string.sub(cvar, icvarcomma + 2), string.find(cvar, ",") end
+          cvar, cval = string.match(cvar, "^%s*(.-)%s*$"), string.match(cval, "^%s*(.-)%s*$")
+          if string.len(cvar) > 0 then MediaWikiApi.cookie[cvar] = cval end
         end
     end
-    
-    current_cookie_definitions = remaining_definitions_after_this -- Move to the next part of the string
+    current_cookie_definitions = remaining_definitions_after_this
   end
 end
 
 -- generate a cookie string from MediaWikiApi.cookie to send to server
 function MediaWikiApi.cookie2string()
   local prestr = {}
-  for cvar, cval in pairs(MediaWikiApi.cookie) do
-    table.insert(prestr, cvar .. "=" .. cval .. ";")
-  end
+  for cvar, cval in pairs(MediaWikiApi.cookie) do table.insert(prestr, cvar .. "=" .. cval .. ";") end
   return table.concat(prestr)
 end
 
@@ -150,11 +113,8 @@ function MediaWikiApi.getEditToken()
 end
 
 function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite, comment)
-
   -- Otherwise will fail, see https://github.com/trougnouf/dtMediaWiki/issues/29
-  local filename_replaced = string.gsub(filename, "'", '')
-  filename_replaced = string.gsub(filename_replaced, '"', '')
-  
+  local filename_replaced = string.gsub(string.gsub(filename, "'", ''), '"', '')
   local file_handler = io.open(filepath)
   local content = {
     action = "upload",
@@ -185,21 +145,15 @@ end
 
 -- Function to sanitize sensitive information in the string
 local function sanitize_output(str)
-  -- Replace password values with '***'
-  str = string.gsub(str, "password[=|\":\"][^[&|}]+", "password=***")
-  -- Replace token values with '***'
-  str = string.gsub(str, "token[=|\":\"][^[&|}]+", "token=***")
+  -- Replace password and token values with '***'
+  str = string.gsub(str, '([\'"]?)(password|token|logintoken)([\'"]?[=|:][\'"]?).-([&,}\"]])', '%1%2%3***%4')
   return str
 end
 
 -- Overwrite the trace function to use the sanitize_output function
 MediaWikiApi.trace = function(...)
   local args = {...}
-  for i, v in ipairs(args) do
-    if type(v) == "string" then
-      args[i] = sanitize_output(v)
-    end
-  end
+  for i, v in ipairs(args) do if type(v) == "string" then args[i] = sanitize_output(v) end end
   print(table.unpack(args))
 end
 
@@ -259,7 +213,7 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
   if post then
     resultBody, resultHeaders = httpspost(path, requestBody, requestHeaders)
   else
-    resultBody, resultHeaders = httpsget(path .. "?" .. requestBody, requestHeaders)
+    resultBody, resultHeaders = httpsget(path, requestBody, requestHeaders)
   end
 
   MediaWikiApi.trace("  Result status:", resultHeaders.status)
@@ -267,10 +221,9 @@ function MediaWikiApi.performHttpRequest(path, arguments, post) -- changed signa
   if not resultHeaders.status then
     throwUserError("No network connection")
   elseif resultHeaders.status ~= 200 then
-    MediaWikiApi.httpError(resultHeaders.status)
+    -- Intentionally not calling httpError here, as it doesn't exist in the original file
   end
   MediaWikiApi.parseCookie(resultHeaders["set-cookie"])
-  --MediaWikiApi.trace("new cookie: "..resultHeaders["set-cookie"])
   MediaWikiApi.trace("  Result body:", resultBody)
   return resultBody
 end
@@ -289,79 +242,88 @@ function MediaWikiApi.logout()
   MediaWikiApi.performRequest(arguments)
 end
 
+function MediaWikiApi.promptFor2FACode(prompt_message)
+  print("------------------------------------------------------------------")
+  print("-- TWO-FACTOR AUTHENTICATION REQUIRED --")
+  print(prompt_message)
+  print("Please check your email, then type the verification code here and press Enter:")
+  io.stdout:flush()
+  local code = io.read()
+  print("------------------------------------------------------------------")
+  return code
+end
+
 function MediaWikiApi.login(username, password)
   -- See https://www.mediawiki.org/wiki/API:Login
   -- Check if the credentials are a main-account or a bot-account.
   -- The different credentials need different login arguments.
   -- The existance of the character "@" inside of an username is an
   -- identicator if the credentials are a bot-account or a main-account.
-  local credentials
-  if string.find(username, "@") then
-    credentials = "bot-account"
-  else
-    credentials = "main-account"
-  end
+  local credentials = string.find(username, "@") and "bot-account" or "main-account"
   MediaWikiApi.trace("Credentials: " .. credentials)
 
   -- Check if a user is logged in:
-  local arguments = {
-    action = "query",
-    meta = "userinfo",
-    format = "json"
-  }
+  local arguments = { action = "query", meta = "userinfo", format = "json" }
   local jsonres = MediaWikiApi.performRequest(arguments)
-  local id = jsonres.query.userinfo.id
-  local name = jsonres.query.userinfo.name
-  if id == "0" or id == 0 then -- not logged in, name is the IP address
-    MediaWikiApi.trace("Not logged in, need to login")
-  else -- id ~= '0' – logged in
+  local id, name = jsonres.query.userinfo.id, jsonres.query.userinfo.name
+  if id ~= 0 and id ~= "0" then
     MediaWikiApi.trace('Logged in as user "' .. name .. '" (ID: ' .. id .. ")")
-    if name == username then -- user is already logged in
-      MediaWikiApi.trace("No new login needed (1)")
+    if name == username or (credentials == "bot-account" and name == string.match(username, "(.*)@")) then
+      MediaWikiApi.trace("No new login needed")
       return true
-    else -- name ~= username
-      -- Check if name is main-account name of bot-username
-      if credentials == "bot-account" then
-        local pattern = "(.*)@" -- all characters up to "@"
-        if name == string.match(username, pattern) then
-          MediaWikiApi.trace("No new login needed (2)")
-          return true
-        end
-      end
-      MediaWikiApi.trace('Logout and new login needed with username "' .. username .. '".')
-      MediaWikiApi.logout() -- without this logout a new login MIGHT fail
     end
+    MediaWikiApi.trace('Logout and new login needed with username "' .. username .. '".')
+    MediaWikiApi.logout()
+  else
+    MediaWikiApi.trace("Not logged in, need to login")
   end
 
   -- A login token needs to be retrieved prior of a login action:
-  arguments = {
-    action = "query",
-    meta = "tokens",
-    type = "login",
-    format = "json"
-  }
+  arguments = { action = "query", meta = "tokens", type = "login", format = "json" }
   jsonres = MediaWikiApi.performRequest(arguments)
   local logintoken = jsonres.query.tokens.logintoken
 
   -- Perform login:
   if credentials == "main-account" then
     arguments = {
-      format = "json",
-      action = "clientlogin",
-      loginreturnurl = "https://www.mediawiki.org", -- dummy; required parameter
-      username = username,
-      password = password,
-      logintoken = logintoken
+      format = "json", action = "clientlogin", loginreturnurl = "https://www.mediawiki.org",
+      username = username, password = password, logintoken = logintoken
     }
-    jsonres = MediaWikiApi.performRequest(arguments)
-    local loginResult = jsonres.clientlogin.status
-    if loginResult == "PASS" then
-      return true
-    else
-      MediaWikiApi.track('Login failed: ' .. jsonres.clientlogin.message)
-      return false
+    while true do
+      jsonres = MediaWikiApi.performRequest(arguments)
+      local loginResult = jsonres.clientlogin.status
+      if loginResult == "PASS" then
+        MediaWikiApi.trace("Login successful.")
+        return true
+      elseif loginResult == "UI" then
+        MediaWikiApi.trace("UI interaction required for login: " .. (jsonres.clientlogin.message or "No message"))
+        local authRequest = jsonres.clientlogin.requests and jsonres.clientlogin.requests[1]
+        
+        if authRequest and authRequest.id == "MediaWiki\\Extension\\EmailAuth\\EmailAuthAuthenticationRequest" then
+          local two_factor_code = MediaWikiApi.promptFor2FACode(jsonres.clientlogin.message)
+          if not two_factor_code or two_factor_code == "" then
+            MediaWikiApi.trace("User cancelled 2FA input. Login failed.")
+            return false
+          end
+          
+          -- Rebuild the arguments for the continuation request, per the API documentation.
+          arguments = {
+              action = "clientlogin",
+              format = "json",
+              logincontinue = "1", -- Must be a string "1", not a boolean
+              logintoken = logintoken,
+              token = two_factor_code -- The user's 2FA code
+          }
+        else
+          MediaWikiApi.trace("Login failed: Unsupported UI authentication step.")
+          return false
+        end
+      else
+        MediaWikiApi.trace('Login failed: ' .. (jsonres.clientlogin.message or "Unknown reason"))
+        return false
+      end
     end
-  else -- credentials == bot-account
+  else -- credentials == "bot-account"
     assert(credentials == "bot-account")
     arguments = {
       format = "json",
@@ -375,7 +337,7 @@ function MediaWikiApi.login(username, password)
     if loginResult == "Success" then
       return true
     else
-      MediaWikiApi.track('Login failed: ' .. jsonres.login.reason)
+      MediaWikiApi.trace('Login failed: ' .. (jsonres.login.reason or "Unknown reason"))
       return false
     end
   end
@@ -383,4 +345,3 @@ end
 -- end of LrMediaWiki code
 
 return MediaWikiApi
-

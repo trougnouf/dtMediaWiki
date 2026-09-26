@@ -1152,12 +1152,96 @@ local metadata_editor =
   )
 
 -----------------------------------------------------------------------
+-- Wikimedia verification (2FA)
+--
+-- Shown when the login requires an email verification code. The
+-- code is entered here and sent with MediaWikiApi.complete2FA().
+-----------------------------------------------------------------------
+
+local auth_section
+local update_auth_ui
+
+local auth_message =
+  dt.new_widget("text_view") {
+    text = "",
+    editable = false
+  }
+
+local auth_code_entry =
+  dt.new_widget("entry") {
+    text = "",
+    placeholder = _("Verification code"),
+    tooltip =
+      _("Enter the verification code sent to your email address")
+  }
+
+local auth_submit_button =
+  dt.new_widget("button") {
+    label = _("Submit"),
+    clicked_callback = function()
+
+      if MediaWikiApi.complete2FA(
+        auth_code_entry.text
+      ) then
+
+        auth_message.text =
+          _("Wikimedia login complete")
+
+        auth_section.visible = false
+
+      else
+
+        update_auth_ui()
+      end
+    end
+  }
+
+auth_section =
+  dt.new_widget("box") {
+    orientation = "vertical",
+
+    dt.new_widget("section_label") {
+      label = _("Wikimedia verification")
+    },
+
+    auth_message,
+
+    dt.new_widget("box") {
+      orientation = "horizontal",
+      auth_code_entry,
+      auth_submit_button
+    }
+  }
+
+function update_auth_ui()
+
+  local pending =
+    MediaWikiApi.is2FAPending()
+
+  auth_section.visible = pending
+
+  if pending then
+
+    auth_message.text =
+      MediaWikiApi.get2FAPromptMessage()
+
+    auth_code_entry.text = ""
+  end
+end
+
+M.update_auth_ui = update_auth_ui
+
+update_auth_ui()
+
+-----------------------------------------------------------------------
 -- Layout
 -----------------------------------------------------------------------
 
 local widget =
   dt.new_widget("box") {
     orientation = "vertical",
+
+    auth_section,
 
     status,
 

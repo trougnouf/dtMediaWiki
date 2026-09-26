@@ -1072,6 +1072,17 @@ end
 --A function called before storage happens
 --This function can change the list of exported functions
 local function register_storage_initialize(_, _, images, _, extra_data)
+  -- Login may be parked waiting for an email verification code;
+  -- refuse to export until it is completed in the metadata panel.
+  if not MediaWikiApi.isAuthenticated() then
+    msgout(
+      translate(
+        "Not authenticated with Wikimedia Commons, export disabled. Complete the login in the Commons metadata panel."
+      )
+    )
+    return {}
+  end
+
   -- Persist edits still pending in the metadata panel.
   MetadataUI.save()
 
@@ -1316,12 +1327,25 @@ local export_widgets =
   }
 
 -- Darktable target storage entry
-if
-    MediaWikiApi.login(
-      dt.preferences.read(preferences_prefix, "username", "string"),
-      dt.preferences.read(preferences_prefix, "password", "string")
+local login_result =
+  MediaWikiApi.login(
+    dt.preferences.read(preferences_prefix, "username", "string"),
+    dt.preferences.read(preferences_prefix, "password", "string")
+  )
+
+if login_result == "pending" then
+  -- A verification code is required. The user enters it in the
+  -- metadata panel; exports stay disabled until then (see
+  -- register_storage_initialize).
+  MetadataUI.update_auth_ui()
+  msgout(
+    translate(
+      "Wikimedia login requires a verification code, enter it in the 'Wikimedia Commons metadata' panel."
     )
-then
+  )
+end
+
+if login_result then
   -- https://docs.darktable.org/lua/stable/lua.api.manual/darktable/darktable.register_storage
   dt.register_storage(
     "mediawiki",

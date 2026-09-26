@@ -1194,36 +1194,166 @@ end
 
 -----------------------------------------------------------------------
 -- EmailAuth / interactive continuation
+--
+-- When the server requests an email verification code, the login
+-- cannot be completed on the spot: there is no terminal to read
+-- the code from. The login is then parked in a "pending" state
+-- until the user enters the code in the metadata panel, which
+-- finishes it by calling complete2FA().
 -----------------------------------------------------------------------
 
-function MediaWikiApi.promptFor2FACode(prompt_message)
+local authenticated = false
 
-  print(
-    "------------------------------------------------------------"
+local pending_2fa = nil
+
+function MediaWikiApi.isAuthenticated()
+  return authenticated
+end
+
+function MediaWikiApi.is2FAPending()
+  return pending_2fa ~= nil
+end
+
+function MediaWikiApi.get2FAPromptMessage()
+  return pending_2fa and pending_2fa.message or ""
+end
+
+function MediaWikiApi.complete2FA(code)
+
+  if not pending_2fa then
+    return false
+  end
+
+  code =
+    tostring(code or "")
+      :gsub("^%s+", "")
+      :gsub("%s+$", "")
+
+  if code == "" then
+
+    throwUserError(
+      "Authentication cancelled"
+    )
+
+    return false
+  end
+
+  local result =
+    MediaWikiApi.performRequest {
+      action        = "clientlogin",
+      format        = "json",
+      logincontinue = "1",
+      logintoken    = pending_2fa.login_token,
+      token         = code
+    }
+
+  if not result
+      or not result.clientlogin then
+
+    pending_2fa = nil
+
+    throwUserError(
+      "Unexpected clientlogin response"
+    )
+
+    return false
+  end
+
+  local status =
+    result.clientlogin.status
+
+  log(
+    "clientlogin status:",
+    tostring(status)
   )
 
-  print(
-    "-- WIKIMEDIA AUTHENTICATION REQUIRED --"
-  )
+  ---------------------------------------------------------
+  -- Success
+  ---------------------------------------------------------
 
-  print(
-    tostring(prompt_message or "")
-  )
+  if status == "PASS" then
 
-  print(
-    "Enter the verification code and press Enter:"
-  )
+    pending_2fa = nil
 
-  io.stdout:flush()
+    authenticated = true
 
-  local code =
-    io.read()
+    local authenticated_user =
+      MediaWikiApi.getUserInfo()
 
-  print(
-    "------------------------------------------------------------"
-  )
+    if authenticated_user then
 
-  return code
+      log(
+        "login successful:",
+        tostring(authenticated_user.name),
+        "id:",
+        tostring(authenticated_user.id)
+      )
+
+    else
+
+      log(
+        "login successful; userinfo unavailable"
+      )
+    end
+
+    return true
+
+  ---------------------------------------------------------
+  -- Interactive authentication (wrong code)
+  ---------------------------------------------------------
+
+  elseif status == "UI" then
+
+    local requests =
+      result.clientlogin.requests
+
+    local auth_request =
+      requests
+      and requests[1]
+
+    if auth_request
+        and auth_request.id ==
+          "MediaWiki\\Extension\\EmailAuth\\EmailAuthAuthenticationRequest"
+    then
+
+      pending_2fa.message =
+        result.clientlogin.message
+        or "Verification code rejected, please try again"
+
+      log(
+        "verification code rejected, waiting for a new code"
+      )
+
+      return false
+    end
+
+    pending_2fa = nil
+
+    throwUserError(
+      "Unsupported Wikimedia authentication step"
+    )
+
+    return false
+
+  ---------------------------------------------------------
+  -- Other failure/status
+  ---------------------------------------------------------
+
+  else
+
+    pending_2fa = nil
+
+    throwUserError(
+      "Wikimedia login failed: " ..
+      tostring(
+        result.clientlogin.message
+        or status
+        or "unknown reason"
+      )
+    )
+
+    return false
+  end
 end
 
 -----------------------------------------------------------------------
@@ -1238,6 +1368,10 @@ function MediaWikiApi.logout()
   }
 
   MediaWikiApi.edit_token = nil
+
+  authenticated = false
+
+  pending_2fa = nil
 
   log("logout complete")
 end
@@ -1299,6 +1433,8 @@ function MediaWikiApi.login(username, password)
         "existing session can be reused"
       )
 
+      authenticated = true
+
       return true
     end
 
@@ -1336,7 +1472,10 @@ function MediaWikiApi.login(username, password)
       logintoken     = login_token
     }
 
-    while true do
+    -- Single pass: any interactive step parks the login as
+    -- "pending" (see complete2FA), so the request is never
+    -- repeated here.
+    do
 
       local result =
         MediaWikiApi.performRequest(
@@ -1366,6 +1505,8 @@ function MediaWikiApi.login(username, password)
       ---------------------------------------------------------
 
       if status == "PASS" then
+
+        authenticated = true
 
         local authenticated_user =
           MediaWikiApi.getUserInfo()
@@ -1406,28 +1547,19 @@ function MediaWikiApi.login(username, password)
               "MediaWiki\\Extension\\EmailAuth\\EmailAuthAuthenticationRequest"
         then
 
-          local code =
-            MediaWikiApi.promptFor2FACode(
-              result.clientlogin.message
-            )
-
-          if not code
-              or code == "" then
-
-            throwUserError(
-              "Authentication cancelled"
-            )
-
-            return false
-          end
-
-          arguments = {
-            action        = "clientlogin",
-            format        = "json",
-            logincontinue = "1",
-            logintoken    = login_token,
-            token         = code
+          -- A verification code is required. There is no terminal
+          -- to read it from, so park the login until the user
+          -- enters the code in the metadata panel (complete2FA).
+          pending_2fa = {
+            login_token = login_token,
+            message     = result.clientlogin.message or ""
           }
+
+          log(
+            "verification code required; waiting for input in the metadata panel"
+          )
+
+          return "pending"
 
         else
 
@@ -1476,6 +1608,8 @@ function MediaWikiApi.login(username, password)
         and result.login
         and result.login.result ==
           "Success" then
+
+      authenticated = true
 
       log("bot login successful")
 

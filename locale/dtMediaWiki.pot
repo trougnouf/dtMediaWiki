@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-26 09:14+0200\n"
+"POT-Creation-Date: 2026-09-26 23:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,58 +17,58 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: dtMediaWiki.lua:48
+#: dtMediaWiki.lua:53
 msgid "Commons: Categorize camera?"
 msgstr ""
 
-#: dtMediaWiki.lua:49
+#: dtMediaWiki.lua:54
 msgid ""
 "A category will be added with the camera information (eg: [[Category:Taken "
 "with Fujifilm X-E2 and XF18-55mmF2.8-4 R LM OIS]])"
 msgstr ""
 
-#: dtMediaWiki.lua:58
+#: dtMediaWiki.lua:63
 msgid "Commons: Templates to be placed in {{Information |description= ...}}"
 msgstr ""
 
-#: dtMediaWiki.lua:59
+#: dtMediaWiki.lua:64
 msgid ""
 "These templates are placed in the {{Information |description= ...}} field. "
 "(comma-separated)"
 msgstr ""
 
-#: dtMediaWiki.lua:67
+#: dtMediaWiki.lua:72
 msgid "Commons: Overwrite existing images?"
 msgstr ""
 
-#: dtMediaWiki.lua:68
+#: dtMediaWiki.lua:73
 msgid ""
 "Existing images will be overwritten  without confirmation, otherwise the "
 "upload will fail."
 msgstr ""
 
-#: dtMediaWiki.lua:76
+#: dtMediaWiki.lua:81
 msgid "Commons: Preferred author pattern"
 msgstr ""
 
-#: dtMediaWiki.lua:77
+#: dtMediaWiki.lua:82
 msgid "Determines the author value; variables are $USERNAME, $CREATOR"
 msgstr ""
 
-#: dtMediaWiki.lua:85
+#: dtMediaWiki.lua:90
 msgid "Commons: Preferred filename pattern"
 msgstr ""
 
-#: dtMediaWiki.lua:86
+#: dtMediaWiki.lua:91
 msgid ""
 "Determines the filename value; variables are $TITLE, $DESCRIPTION, $FILE_NAME"
 msgstr ""
 
-#: dtMediaWiki.lua:95
+#: dtMediaWiki.lua:100
 msgid "Commons: Allow empty 'Information|description' on page?"
 msgstr ""
 
-#: dtMediaWiki.lua:96
+#: dtMediaWiki.lua:101
 msgid ""
 "If unchecked (default), images where both title and description metadata are "
 "empty will not be uploaded, as this results in an empty '{{Information|"
@@ -77,462 +77,504 @@ msgid ""
 "description)."
 msgstr ""
 
-#: dtMediaWiki.lua:106
+#: dtMediaWiki.lua:115
 msgid "Commons: Default license"
 msgstr ""
 
-#: dtMediaWiki.lua:107
+#: dtMediaWiki.lua:116
 msgid ""
 "Default license for images uploaded to Wikimedia Commons (eg: CC-BY-SA-4.0, "
 "CC-BY-4.0, PD, ...)"
 msgstr ""
 
-#: dtMediaWiki.lua:115
+#: dtMediaWiki.lua:124
 msgid "Wikimedia password"
 msgstr ""
 
-#: dtMediaWiki.lua:116
+#: dtMediaWiki.lua:125
 msgid "Wikimedia Commons password (to be stored in plain-text!)"
 msgstr ""
 
-#: dtMediaWiki.lua:124
+#: dtMediaWiki.lua:133
 msgid "Wikimedia username"
 msgstr ""
 
-#: dtMediaWiki.lua:125
+#: dtMediaWiki.lua:134
 msgid "Wikimedia Commons username"
 msgstr ""
 
-#: dtMediaWiki.lua:135
+#: dtMediaWiki.lua:144
 msgid "Determines the `File:` page name on Wikimedia Commons."
 msgstr ""
 
-#: dtMediaWiki.lua:137
+#: dtMediaWiki.lua:146
 msgid "Placeholder syntax:"
 msgstr ""
 
-#: dtMediaWiki.lua:138
+#: dtMediaWiki.lua:147
 msgid "  <dateYYYYMMDD> - capture date as YYYYMMDD"
 msgstr ""
 
-#: dtMediaWiki.lua:139
+#: dtMediaWiki.lua:148
 msgid "  <title> - title from image metadata"
 msgstr ""
 
-#: dtMediaWiki.lua:140
+#: dtMediaWiki.lua:149
 msgid "  <fileName> - original filename using the export extension"
 msgstr ""
 
-#: dtMediaWiki.lua:141
+#: dtMediaWiki.lua:150
 msgid "  and other placeholders available in the selector below"
 msgstr ""
 
-#: dtMediaWiki.lua:143
+#: dtMediaWiki.lua:152
 msgid "Legacy variables are still supported:"
 msgstr ""
 
-#: dtMediaWiki.lua:144
+#: dtMediaWiki.lua:153
 msgid "  $FILE_NAME"
 msgstr ""
 
-#: dtMediaWiki.lua:145
+#: dtMediaWiki.lua:154
 msgid "  $TITLE"
 msgstr ""
 
-#: dtMediaWiki.lua:146
+#: dtMediaWiki.lua:155
 msgid "  $DESCRIPTION"
 msgstr ""
 
-#: dtMediaWiki.lua:186
+#: dtMediaWiki.lua:195
 msgid "Insert placeholder"
 msgstr ""
 
-#: dtMediaWiki.lua:188
+#: dtMediaWiki.lua:197
 msgid "Append a placeholder into the Wikimedia Commons filename pattern."
 msgstr ""
 
-#: dtMediaWiki.lua:235
+#: dtMediaWiki.lua:244
 msgid ""
 "Description language code. Additional descriptions may be added with tag "
 "{{Description|language_code|description_text}} or any of the templates "
 "listed in the desc_template setting."
 msgstr ""
 
-#: dtMediaWiki.lua:303
+#: dtMediaWiki.lua:312
 msgid ""
 "Filename pattern resulted in an empty name, falling back to input image "
 "basename."
 msgstr ""
 
-#: dtMediaWiki.lua:409
+#: dtMediaWiki.lua:420
 msgid ""
 "Commons categories added to every image in this export. Enter one category "
 "per line, without [[Category:...]]."
 msgstr ""
 
-#: dtMediaWiki.lua:424
+#: dtMediaWiki.lua:435
 msgid ""
 "Additional Wikitext added to every Commons file page in this export, for "
 "example {{Supported by Wikimedia Österreich}}."
 msgstr ""
 
-#: dtMediaWiki.lua:455
+#: dtMediaWiki.lua:466
 msgid "dtMediaWiki.get_alt_images: looking at "
 msgstr ""
 
-#: dtMediaWiki.lua:457
+#: dtMediaWiki.lua:468
 msgid "dtMediaWiki.get_alt_images: looking for "
 msgstr ""
 
-#: dtMediaWiki.lua:461
+#: dtMediaWiki.lua:472
 msgid "dtMediaWiki.get_alt_images: found "
 msgstr ""
 
-#: dtMediaWiki.lua:742 dtMediaWiki.lua:744
+#: dtMediaWiki.lua:884 dtMediaWiki.lua:886
 msgid "Uploaded with dtMediaWiki "
 msgstr ""
 
-#: dtMediaWiki.lua:868 dtMediaWiki.lua:1027 dtMediaWiki.lua:1029
+#: dtMediaWiki.lua:1013 dtMediaWiki.lua:1190 dtMediaWiki.lua:1192
 msgid "Error: "
 msgstr ""
 
-#: dtMediaWiki.lua:878
+#: dtMediaWiki.lua:1014
+msgid ""
+" has an unsupported extension, won't be exported to Wikimedia Commons in "
+"copy mode"
+msgstr ""
+
+#: dtMediaWiki.lua:1023
 msgid "register_storage_store: exporting the following image:"
 msgstr ""
 
-#: dtMediaWiki.lua:882
+#: dtMediaWiki.lua:1027
 msgid "BUG: invalid tag 0 for image "
 msgstr ""
 
-#: dtMediaWiki.lua:900 dtMediaWiki.lua:916
+#: dtMediaWiki.lua:1045 dtMediaWiki.lua:1061
 msgid "exported "
 msgstr ""
 
-#: dtMediaWiki.lua:902
+#: dtMediaWiki.lua:1047
 msgid "Failed to export "
 msgstr ""
 
-#: dtMediaWiki.lua:917
+#: dtMediaWiki.lua:1062
 msgid " images to Wikimedia Commons"
 msgstr ""
 
-#: dtMediaWiki.lua:951
+#: dtMediaWiki.lua:1080
+msgid ""
+"Not authenticated with Wikimedia Commons, export disabled. Complete the "
+"login in the Commons metadata panel."
+msgstr ""
+
+#: dtMediaWiki.lua:1110
 msgid ""
 "BUG: dt.register_storage.initialize sent a number instead of dt_lua_image_t "
 "in images table: "
 msgstr ""
 
-#: dtMediaWiki.lua:957
+#: dtMediaWiki.lua:1117
 msgid "has no rights"
 msgstr ""
 
-#: dtMediaWiki.lua:974
+#: dtMediaWiki.lua:1134
 msgid "is missing a title, which is required by the filename pattern"
 msgstr ""
 
-#: dtMediaWiki.lua:990
+#: dtMediaWiki.lua:1150
 msgid "is missing a description, which is required by the filename pattern"
 msgstr ""
 
-#: dtMediaWiki.lua:1019
+#: dtMediaWiki.lua:1179
 msgid ""
 "is missing both title and description, resulting in an empty 'Information|"
 "description' field on the Commons page (and the 'Allow empty Information|"
 "description...' preference is off)"
 msgstr ""
 
-#: dtMediaWiki.lua:1044
+#: dtMediaWiki.lua:1207
 msgid ", won't be exported to Wikimedia Commons"
 msgstr ""
 
-#: dtMediaWiki.lua:1057
+#: dtMediaWiki.lua:1221
 msgid "Write Commons preview"
 msgstr ""
 
-#: dtMediaWiki.lua:1111
+#: dtMediaWiki.lua:1277
 msgid "Naming pattern:"
 msgstr ""
 
-#: dtMediaWiki.lua:1132 lib/placeholders.lua:1041
+#: dtMediaWiki.lua:1290 lib/placeholders.lua:1054
+msgid "Categories"
+msgstr ""
+
+#: dtMediaWiki.lua:1298 lib/placeholders.lua:1043
 msgid "Templates"
 msgstr ""
 
-#: dtMediaWiki.lua:1143
+#: dtMediaWiki.lua:1309
 msgid "Comment:"
 msgstr ""
 
-#: dtMediaWiki.lua:1153
+#: dtMediaWiki.lua:1319
 msgid "Language code:"
 msgstr ""
 
-#: dtMediaWiki.lua:1155
+#: dtMediaWiki.lua:1321
 msgid "Description language code (eg: en, fr, ...)."
 msgstr ""
 
-#: dtMediaWiki.lua:1181
+#: dtMediaWiki.lua:1343
+msgid ""
+"Wikimedia login requires a verification code, enter it in the 'Wikimedia "
+"Commons metadata' panel."
+msgstr ""
+
+#: dtMediaWiki.lua:1360
 msgid "Unable to log into Wikimedia Commons, export disabled."
 msgstr ""
 
-#: lib/metadata_ui.lua:37
+#: lib/metadata_ui.lua:40
 msgid "<multiple values>"
 msgstr ""
 
-#: lib/metadata_ui.lua:82
+#: lib/metadata_ui.lua:85
 msgid "Metadata preset"
 msgstr ""
 
-#: lib/metadata_ui.lua:84
+#: lib/metadata_ui.lua:87
 msgid "Select metadata preset"
 msgstr ""
 
-#: lib/metadata_ui.lua:90
+#: lib/metadata_ui.lua:93
 msgid "Metadata preset name"
 msgstr ""
 
-#: lib/metadata_ui.lua:134 lib/metadata_ui.lua:763 lib/category_search.lua:64
+#: lib/metadata_ui.lua:137 lib/metadata_ui.lua:815 lib/category_search.lua:64
 msgid "No image selected"
 msgstr ""
 
-#: lib/metadata_ui.lua:490
+#: lib/metadata_ui.lua:153
+msgid "Darktable image title"
+msgstr ""
+
+#: lib/metadata_ui.lua:546
 msgid "dtMediaWiki: preset contains no image metadata"
 msgstr ""
 
-#: lib/metadata_ui.lua:500 lib/metadata_ui.lua:932
+#: lib/metadata_ui.lua:556 lib/metadata_ui.lua:943
 msgid "dtMediaWiki: no image selected"
 msgstr ""
 
-#: lib/metadata_ui.lua:631
+#: lib/metadata_ui.lua:691
 msgid "dtMediaWiki: the preset needs a name"
 msgstr ""
 
-#: lib/metadata_ui.lua:685
+#: lib/metadata_ui.lua:745
 #, lua-format
 msgid "dtMediaWiki: preset could not be saved: %s"
 msgstr ""
 
-#: lib/metadata_ui.lua:732
+#: lib/metadata_ui.lua:782
 #, lua-format
 msgid "dtMediaWiki: preset saved: %s"
 msgstr ""
 
-#: lib/metadata_ui.lua:792
+#: lib/metadata_ui.lua:844
 #, lua-format
 msgid "%d images selected"
 msgstr ""
 
-#: lib/metadata_ui.lua:882
+#: lib/metadata_ui.lua:893
 msgid "dtMediaWiki: select exactly one source image"
 msgstr ""
 
-#: lib/metadata_ui.lua:910
+#: lib/metadata_ui.lua:921
 msgid "dtMediaWiki: metadata copied"
 msgstr ""
 
-#: lib/metadata_ui.lua:920
+#: lib/metadata_ui.lua:931
 msgid "dtMediaWiki: no copied metadata available"
 msgstr ""
 
-#: lib/metadata_ui.lua:958
+#: lib/metadata_ui.lua:971
 #, lua-format
 msgid "dtMediaWiki: metadata pasted to %d image(s)"
 msgstr ""
 
-#: lib/metadata_ui.lua:970
+#: lib/metadata_ui.lua:983
 msgid "Edit preset"
 msgstr ""
 
-#: lib/metadata_ui.lua:976
+#: lib/metadata_ui.lua:989
 msgid "New preset"
 msgstr ""
 
-#: lib/metadata_ui.lua:982
+#: lib/metadata_ui.lua:995
 msgid "Save"
 msgstr ""
 
-#: lib/metadata_ui.lua:988
+#: lib/metadata_ui.lua:1001
 msgid "Close"
 msgstr ""
 
-#: lib/metadata_ui.lua:997
+#: lib/metadata_ui.lua:1010
 msgid "Apply preset"
 msgstr ""
 
-#: lib/metadata_ui.lua:1003
+#: lib/metadata_ui.lua:1016
 msgid "Copy metadata"
 msgstr ""
 
-#: lib/metadata_ui.lua:1009
+#: lib/metadata_ui.lua:1022
 msgid "Paste metadata"
 msgstr ""
 
-#: lib/metadata_ui.lua:1022
+#: lib/metadata_ui.lua:1035
 msgid "Edit metadata preset"
 msgstr ""
 
-#: lib/metadata_ui.lua:1033
+#: lib/metadata_ui.lua:1046
 msgid "Name"
 msgstr ""
 
-#: lib/metadata_ui.lua:1166
-msgid "Wikimedia Commons metadata"
-msgstr ""
-
-#: lib/placeholders.lua:118
-msgid "Other"
-msgstr ""
-
-#: lib/placeholders.lua:636
-msgid "File name"
-msgstr ""
-
-#: lib/placeholders.lua:637 lib/placeholders.lua:677 lib/placeholders.lua:665
-msgid "File"
-msgstr ""
-
-#: lib/placeholders.lua:664
-msgid "File base name"
-msgstr ""
-
-#: lib/placeholders.lua:676
-msgid "Export extension"
-msgstr ""
-
-#: lib/placeholders.lua:694
+#: lib/metadata_ui.lua:1116 lib/placeholders.lua:696
 msgid "Title"
 msgstr ""
 
-#: lib/placeholders.lua:695 lib/placeholders.lua:705 lib/placeholders.lua:745
-#: lib/placeholders.lua:755 lib/placeholders.lua:1009 lib/placeholders.lua:1020
-#: lib/placeholders.lua:1031
+#: lib/metadata_ui.lua:1173
+msgid "Verification code"
+msgstr ""
+
+#: lib/metadata_ui.lua:1175
+msgid "Enter the verification code sent to your email address"
+msgstr ""
+
+#: lib/metadata_ui.lua:1180
+msgid "Submit"
+msgstr ""
+
+#: lib/metadata_ui.lua:1188
+msgid "Wikimedia login complete"
+msgstr ""
+
+#: lib/metadata_ui.lua:1204
+msgid "Wikimedia verification"
+msgstr ""
+
+#: lib/metadata_ui.lua:1277
+msgid "Wikimedia Commons metadata"
+msgstr ""
+
+#: lib/placeholders.lua:120
+msgid "Other"
+msgstr ""
+
+#: lib/placeholders.lua:638
+msgid "File name"
+msgstr ""
+
+#: lib/placeholders.lua:639 lib/placeholders.lua:667 lib/placeholders.lua:679
+msgid "File"
+msgstr ""
+
+#: lib/placeholders.lua:666
+msgid "File base name"
+msgstr ""
+
+#: lib/placeholders.lua:678
+msgid "Export extension"
+msgstr ""
+
+#: lib/placeholders.lua:697 lib/placeholders.lua:707 lib/placeholders.lua:747
+#: lib/placeholders.lua:757 lib/placeholders.lua:1011 lib/placeholders.lua:1022
+#: lib/placeholders.lua:1033
 msgid "Description"
 msgstr ""
 
-#: lib/placeholders.lua:704
+#: lib/placeholders.lua:706
 msgid "darktable description"
 msgstr ""
 
-#: lib/placeholders.lua:716
+#: lib/placeholders.lua:718
 msgid "German description"
 msgstr ""
 
-#: lib/placeholders.lua:717 lib/placeholders.lua:731 lib/placeholders.lua:1042
-#: lib/placeholders.lua:1053 lib/placeholders.lua:1065
-#: lib/placeholders.lua:1076 lib/placeholders.lua:1087
+#: lib/placeholders.lua:719 lib/placeholders.lua:733 lib/placeholders.lua:1044
+#: lib/placeholders.lua:1055 lib/placeholders.lua:1067
+#: lib/placeholders.lua:1078 lib/placeholders.lua:1089
 msgid "Commons"
 msgstr ""
 
-#: lib/placeholders.lua:730
+#: lib/placeholders.lua:732
 msgid "English description"
 msgstr ""
 
-#: lib/placeholders.lua:744
+#: lib/placeholders.lua:746
 msgid "Creator"
 msgstr ""
 
-#: lib/placeholders.lua:754
+#: lib/placeholders.lua:756
 msgid "Copyright / rights"
 msgstr ""
 
-#: lib/placeholders.lua:768
+#: lib/placeholders.lua:770
 msgid "Capture date/time"
 msgstr ""
 
-#: lib/placeholders.lua:769 lib/placeholders.lua:782 lib/placeholders.lua:802
-#: lib/placeholders.lua:816 lib/placeholders.lua:830
+#: lib/placeholders.lua:771 lib/placeholders.lua:784 lib/placeholders.lua:804
+#: lib/placeholders.lua:818 lib/placeholders.lua:832
 msgid "Date"
 msgstr ""
 
-#: lib/placeholders.lua:781
+#: lib/placeholders.lua:783
 msgid "Date YYYYMMDD"
 msgstr ""
 
-#: lib/placeholders.lua:801
+#: lib/placeholders.lua:803
 msgid "Year"
 msgstr ""
 
-#: lib/placeholders.lua:815
+#: lib/placeholders.lua:817
 msgid "Month"
 msgstr ""
 
-#: lib/placeholders.lua:829
+#: lib/placeholders.lua:831
 msgid "Day"
 msgstr ""
 
-#: lib/placeholders.lua:847
+#: lib/placeholders.lua:849
 msgid "Camera manufacturer"
 msgstr ""
 
-#: lib/placeholders.lua:848 lib/placeholders.lua:858 lib/placeholders.lua:868
-#: lib/placeholders.lua:878 lib/placeholders.lua:896 lib/placeholders.lua:914
-#: lib/placeholders.lua:932
+#: lib/placeholders.lua:850 lib/placeholders.lua:860 lib/placeholders.lua:870
+#: lib/placeholders.lua:880 lib/placeholders.lua:898 lib/placeholders.lua:916
+#: lib/placeholders.lua:934
 msgid "Camera"
 msgstr ""
 
-#: lib/placeholders.lua:857
+#: lib/placeholders.lua:859
 msgid "Camera model"
 msgstr ""
 
-#: lib/placeholders.lua:867
+#: lib/placeholders.lua:869
 msgid "Lens"
 msgstr ""
 
-#: lib/placeholders.lua:877
+#: lib/placeholders.lua:879
 msgid "Focal length"
 msgstr ""
 
-#: lib/placeholders.lua:895
+#: lib/placeholders.lua:897
 msgid "Aperture"
 msgstr ""
 
-#: lib/placeholders.lua:913
+#: lib/placeholders.lua:915
 msgid "Exposure time"
 msgstr ""
 
-#: lib/placeholders.lua:931
+#: lib/placeholders.lua:933
 msgid "ISO"
 msgstr ""
 
-#: lib/placeholders.lua:953
+#: lib/placeholders.lua:955
 msgid "GPS latitude"
 msgstr ""
 
-#: lib/placeholders.lua:954 lib/placeholders.lua:970 lib/placeholders.lua:986
+#: lib/placeholders.lua:956 lib/placeholders.lua:972 lib/placeholders.lua:988
 msgid "Location"
 msgstr ""
 
-#: lib/placeholders.lua:969
+#: lib/placeholders.lua:971
 msgid "GPS longitude"
 msgstr ""
 
-#: lib/placeholders.lua:985
+#: lib/placeholders.lua:987
 msgid "GPS altitude"
 msgstr ""
 
-#: lib/placeholders.lua:1008
+#: lib/placeholders.lua:1010
 msgid "Description (de)"
 msgstr ""
 
-#: lib/placeholders.lua:1019
+#: lib/placeholders.lua:1021
 msgid "Description (en)"
 msgstr ""
 
-#: lib/placeholders.lua:1030
+#: lib/placeholders.lua:1032
 msgid "Other descriptions"
 msgstr ""
 
-#: lib/placeholders.lua:1052
-msgid "Categories"
-msgstr ""
-
-#: lib/placeholders.lua:1064
+#: lib/placeholders.lua:1066
 msgid "Wikidata"
 msgstr ""
 
-#: lib/placeholders.lua:1075
+#: lib/placeholders.lua:1077
 msgid "Other versions"
 msgstr ""
 
-#: lib/placeholders.lua:1086
+#: lib/placeholders.lua:1088
 msgid "Other fields"
 msgstr ""
 
@@ -547,6 +589,10 @@ msgstr ""
 #: lib/category_search.lua:106
 #, lua-format
 msgid "Added [[Category:%s]] to %d image(s)"
+msgstr ""
+
+#: lib/category_search.lua:175
+msgid "Open category in web browser"
 msgstr ""
 
 #: lib/category_search.lua:211
@@ -576,8 +622,4 @@ msgstr ""
 
 #: lib/category_search.lua:290
 msgid "Wikimedia Commons category search"
-msgstr ""
-
-#: lib/category_search.lua:175
-msgid "Open category in web browser"
 msgstr ""

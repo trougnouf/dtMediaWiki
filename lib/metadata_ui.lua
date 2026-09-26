@@ -141,6 +141,12 @@ local status =
 -- Metadata widgets
 -----------------------------------------------------------------------
 
+local title_widget =
+  dt.new_widget("entry") {
+    text = "",
+    tooltip = _("Darktable image title")
+  }
+
 local metadata_widgets = {}
 
 for _, field in ipairs(
@@ -184,6 +190,25 @@ local function copy_value(value)
   end
 
   return result
+end
+
+local function same_title_value(images)
+
+  if #images == 0 then
+    return ""
+  end
+
+  local value =
+    images[1].title or ""
+
+  for index = 2, #images do
+
+    if (images[index].title or "") ~= value then
+      return MULTIPLE
+    end
+  end
+
+  return value
 end
 
 local function split_lines(text)
@@ -406,6 +431,18 @@ local function save_loaded_metadata()
 
   if #loaded_images == 0 then
     return
+  end
+
+  local title =
+    title_widget.text or ""
+
+  if title ~= MULTIPLE then
+
+    for _, image in ipairs(
+      loaded_images
+    ) do
+      image.title = title
+    end
   end
 
   for _, field in ipairs(
@@ -761,6 +798,7 @@ function M.refresh()
 
   if #images == 0 then
 
+    title_widget.text = ""
     status.label =
      _("No image selected")
 
@@ -795,6 +833,9 @@ loaded_images = {}
 	#images
       )
   end
+
+  title_widget.text =
+    same_title_value(images)
 
 for _, field in ipairs(
   placeholders.list_metadata_fields()
@@ -1050,6 +1091,20 @@ preset_editor.visible = false
 local metadata_editor_definition = {
   orientation = "vertical"
 }
+
+table.insert(
+  metadata_editor_definition,
+  dt.new_widget("box") {
+    orientation = "horizontal",
+
+    dt.new_widget("label") {
+      label = _("Title"),
+      halign = "start"
+    },
+
+    title_widget
+  }
+)
 
 for _, field in ipairs(
   placeholders.list_metadata_fields()

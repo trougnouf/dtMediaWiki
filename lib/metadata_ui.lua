@@ -141,6 +141,12 @@ local status =
 -- Metadata widgets
 -----------------------------------------------------------------------
 
+-- The title value the widget was last populated with on refresh.
+-- The entry widget has no change callback, so this is how we tell a
+-- user edit apart from a stale widget (e.g. after the title was set
+-- in the native metadata editor).
+local title_baseline = ""
+
 local title_widget =
   dt.new_widget("entry") {
     text = "",
@@ -436,7 +442,12 @@ local function save_loaded_metadata()
   local title =
     title_widget.text or ""
 
-  if title ~= MULTIPLE then
+  -- The entry widget has no change callback, so it may hold a stale
+  -- value (e.g. after the title was set in the native metadata
+  -- editor). Only write it back if the user actually edited it, i.e.
+  -- if it differs from the value it was populated with on refresh.
+  if title ~= MULTIPLE
+      and title ~= title_baseline then
 
     for _, image in ipairs(
       loaded_images
@@ -799,6 +810,7 @@ function M.refresh()
   if #images == 0 then
 
     title_widget.text = ""
+    title_baseline = ""
     status.label =
      _("No image selected")
 
@@ -834,8 +846,11 @@ loaded_images = {}
       )
   end
 
-  title_widget.text =
+  title_baseline =
     same_title_value(images)
+
+  title_widget.text =
+    title_baseline
 
 for _, field in ipairs(
   placeholders.list_metadata_fields()

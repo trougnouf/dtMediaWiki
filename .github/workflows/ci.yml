@@ -20,5 +20,6 @@ jobs:
       - run: luarocks make
       - run: luarocks install luacheck
 
-      - run: luac -p *.lua lib/*.lua
-      - run: luacheck *.lua lib
+      - run: luac -p *.lua lib/*.lua tests/*.lua
+      - run: luacheck *.lua lib tests
+      - run: lua tests/test_categories.lua

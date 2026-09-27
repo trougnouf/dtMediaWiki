@@ -132,10 +132,6 @@ msgstr "  $DESCRIPTION"
 msgid "Insert placeholder"
 msgstr "Platzhalter einfügen"
 
-#: dtMediaWiki.lua:188
-msgid "Append a placeholder into the Wikimedia Commons filename pattern."
-msgstr "Fügt einen Platzhalter in das Dateinamensmuster für Wikimedia Commons ein."
-
 #: dtMediaWiki.lua:235
 msgid "Description language code. Additional descriptions may be added with tag {{Description|language_code|description_text}} or any of the templates listed in the desc_template setting."
 msgstr "Sprachcode der Beschreibung. Weitere Beschreibungen können mit dem Tag {{Description|language_code|description_text}} oder mit einer der in der Einstellung desc_template aufgeführten Vorlagen hinzugefügt werden."
@@ -248,6 +244,38 @@ msgstr "Sprachcode der Beschreibung (z. B. en, fr, ...)."
 msgid "Unable to log into Wikimedia Commons, export disabled."
 msgstr "Anmeldung bei Wikimedia Commons nicht möglich; Export deaktiviert."
 
+#: dtMediaWiki.lua:53
+msgid "Commons: Description languages"
+msgstr "Commons: Beschreibungssprachen"
+
+#: dtMediaWiki.lua:54
+msgid "Language codes shown as description fields in the Commons metadata panel, separated by commas or semicolons (eg: en,de). Descriptions in other languages can be added with the 'Other descriptions' field."
+msgstr "Sprachcodes, für die im Commons-Metadateneditor ein Beschreibungsfeld angezeigt wird, durch Kommas oder Semikolons getrennt (z. B. en,de). Beschreibungen in anderen Sprachen können mit dem Feld 'Weitere Beschreibungen' hinzugefügt werden."
+
+#: dtMediaWiki.lua:79
+msgid "Commons: Category tag format"
+msgstr "Commons: Format der Kategori-Tags"
+
+#: dtMediaWiki.lua:80
+msgid "Tag format used when saving categories from the Commons metadata editor. Both formats are read back and exported as [[Category:...]]."
+msgstr "Tag-Format, das beim Speichern von Kategorien aus dem Commons-Metadateneditor verwendet wird. Beide Formate werden gleich gelesen und als [[Category:...]] exportiert."
+
+#: dtMediaWiki.lua:219
+msgid "Append a placeholder to the filename pattern above. Select an entry to insert it; the selector then resets to blank."
+msgstr "Fügt einen Platzhalter zum Dateinamensmuster oben hinzu. Eintrag auswählen zum Einfügen; die Auswahl wird danach wieder geleert."
+
+#: dtMediaWiki.lua:1089
+msgid " has an unsupported extension, won't be exported to Wikimedia Commons in copy mode"
+msgstr " hat eine nicht unterstützte Dateiendung und wird im Kopiermodus nicht zu Wikimedia Commons exportiert"
+
+#: dtMediaWiki.lua:1155
+msgid "Not authenticated with Wikimedia Commons, export disabled. Complete the login in the Commons metadata panel."
+msgstr "Nicht bei Wikimedia Commons authentifiziert, Export deaktiviert. Vollenden Sie die Anmeldung im Commons-Metadateneditor."
+
+#: dtMediaWiki.lua:1399
+msgid "Wikimedia login requires a verification code, enter it in the 'Wikimedia Commons metadata' panel."
+msgstr "Die Wikimedia-Anmeldung erfordert einen Bestätigungscode; geben Sie ihn im Feld „Wikimedia-Commons-Metadaten“ ein."
+
 #: lib/metadata_ui.lua:37
 msgid "<multiple values>"
 msgstr "<mehrere Werte>"
@@ -351,6 +379,46 @@ msgstr "Name"
 #: lib/metadata_ui.lua:1166
 msgid "Wikimedia Commons metadata"
 msgstr "Wikimedia-Commons-Metadaten"
+
+#: lib/metadata_ui.lua:154
+msgid "The darktable image title, used in the filename pattern and as a fallback for the Commons page description."
+msgstr "Der darktable-Bildtitel, verwendet im Dateinamensmuster und als Fallback für die Commons-Seitenbeschreibung."
+
+#: lib/metadata_ui.lua:166
+msgid "The darktable image description, shown for reference. It is used as the Commons page description if the description fields below are empty. Edit it in the darktable metadata editor."
+msgstr "Die darktable-Bildbeschreibung, zur Referenz angezeigt. Sie wird als Commons-Seitenbeschreibung verwendet, wenn die Beschreibungsfelder unten leer sind. Bearbeiten Sie sie im darktable-Metadateneditor."
+
+#: lib/metadata_ui.lua:1069
+msgid "Save metadata"
+msgstr "Metadaten speichern"
+
+#: lib/metadata_ui.lua:1071
+msgid "Save the metadata fields below to the selected image(s)"
+msgstr "Die unten stehenden Metadatenfelder für das/die ausgewählte(n) Bild(er) speichern"
+
+#: lib/metadata_ui.lua:1185
+msgid "Description (darktable)"
+msgstr "Beschreibung (darktable)"
+
+#: lib/metadata_ui.lua:1242
+msgid "Verification code"
+msgstr "Bestätigungscode"
+
+#: lib/metadata_ui.lua:1244
+msgid "Enter the verification code sent to your email address"
+msgstr "Geben Sie den an Ihre E-Mail-Adresse gesendeten Bestätigungscode ein"
+
+#: lib/metadata_ui.lua:1249
+msgid "Submit"
+msgstr "Absenden"
+
+#: lib/metadata_ui.lua:1257
+msgid "Wikimedia login complete"
+msgstr "Wikimedia-Anmeldung abgeschlossen"
+
+#: lib/metadata_ui.lua:1273
+msgid "Wikimedia verification"
+msgstr "Wikimedia-Verifizierung"
 
 #: lib/placeholders.lua:118
 msgid "Other"
@@ -483,14 +551,6 @@ msgstr "GPS-Längengrad"
 msgid "GPS altitude"
 msgstr "GPS-Höhe"
 
-#: lib/placeholders.lua:1008
-msgid "Description (de)"
-msgstr "Beschreibung (de)"
-
-#: lib/placeholders.lua:1019
-msgid "Description (en)"
-msgstr "Beschreibung (en)"
-
 #: lib/placeholders.lua:1030
 msgid "Other descriptions"
 msgstr "Weitere Beschreibungen"
@@ -506,3 +566,64 @@ msgstr "Andere Versionen"
 #: lib/placeholders.lua:1086
 msgid "Other fields"
 msgstr "Weitere Felder"
+
+#: lib/placeholders.lua:1201 lib/placeholders.lua:1334
+#, lua-format
+msgid "Description (%s)"
+msgstr "Beschreibung (%s)"
+
+#: lib/placeholders.lua:1219 lib/placeholders.lua:1234
+#: lib/placeholders.lua:1268 lib/placeholders.lua:1283
+#: lib/placeholders.lua:1298
+msgid "Values are separated by semicolons."
+msgstr "Werte werden durch Semikolons getrennt."
+
+#: lib/placeholders.lua:1250
+msgid "Commons categories as plain names, separated by semicolons. Existing Category: and dtMediaWiki|category| tags are shown and managed here as plain names."
+msgstr "Commons-Kategorien, durch Semikolons getrennt. Vorhandene Category:- und dtMediaWiki|category|-Tags werden hier als einfache Namen angezeigt und verwaltet."
+
+#: lib/category_search.lua:40
+msgid "Search Commons categories"
+msgstr "Commons-Kategorien durchsuchen"
+
+#: lib/category_search.lua:41
+msgid "Search terms, eg: cemetery innsbruck"
+msgstr "Suchbegriffe, z. B. cemetery innsbruck"
+
+#: lib/category_search.lua:106
+#, lua-format
+msgid "Added [[Category:%s]] to %d image(s)"
+msgstr "[[Category:%s]] zu %d Bildern hinzugefügt"
+
+#: lib/category_search.lua:175
+msgid "Open category in web browser"
+msgstr "Kategorie im Webbrowser öffnen"
+
+#: lib/category_search.lua:211
+#, lua-format
+msgid "Add [[Category:%s]] to the selected images"
+msgstr "[[Category:%s]] zu den ausgewählten Bildern hinzufügen"
+
+#: lib/category_search.lua:237
+msgid "Searching…"
+msgstr "Suche…"
+
+#: lib/category_search.lua:248
+msgid "Search failed"
+msgstr "Suche fehlgeschlagen"
+
+#: lib/category_search.lua:258
+msgid "No categories found"
+msgstr "Keine Kategorien gefunden"
+
+#: lib/category_search.lua:260
+msgid "Click a category to add it to the selected images"
+msgstr "Klicken Sie auf eine Kategorie, um sie zu den ausgewählten Bildern hinzuzufügen"
+
+#: lib/category_search.lua:266
+msgid "Search"
+msgstr "Suchen"
+
+#: lib/category_search.lua:290
+msgid "Wikimedia Commons category search"
+msgstr "Wikimedia-Commons-Kategoriesuche"

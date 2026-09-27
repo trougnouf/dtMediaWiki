@@ -102,14 +102,14 @@ local function create_metadata_widget(field)
 
     return dt.new_widget("entry") {
       text = "",
-      tooltip = field.label
+      tooltip = field.tooltip or field.label
     }
   end
 
   return dt.new_widget("text_view") {
     text = "",
     editable = true,
-    tooltip = field.label
+    tooltip = field.tooltip or field.label
   }
 end
 
@@ -150,7 +150,23 @@ local title_baseline = ""
 local title_widget =
   dt.new_widget("entry") {
     text = "",
-    tooltip = _("Darktable image title")
+    tooltip =
+      _("The darktable image title, used in the filename pattern "
+        .. "and as a fallback for the Commons page description.")
+  }
+
+-- Read-only preview of the darktable image description. It is used
+-- as the Commons page description when the fields below are empty,
+-- but it is edited in the darktable metadata editor.
+local builtin_description_widget =
+  dt.new_widget("text_view") {
+    text = "",
+    editable = false,
+    tooltip =
+      _("The darktable image description, shown for reference. "
+        .. "It is used as the Commons page description if the "
+        .. "description fields below are empty. "
+        .. "Edit it in the darktable metadata editor.")
   }
 
 local metadata_widgets = {}
@@ -217,30 +233,51 @@ local function same_title_value(images)
   return value
 end
 
-local function split_lines(text)
+local function same_builtin_description(images)
+
+  if #images == 0 then
+    return ""
+  end
+
+  local value =
+    images[1].description or ""
+
+  for index = 2, #images do
+
+    if (images[index].description or "") ~= value then
+      return MULTIPLE
+    end
+  end
+
+  return value
+end
+
+-- Values of multiple fields are separated by semicolons in the
+-- editor. Newlines are accepted as separators as well.
+local function split_values(text)
 
   local result = {}
 
-  for line in tostring(text or "")
-      :gmatch("[^\r\n]+") do
+  for value in tostring(text or "")
+      :gmatch("[^;\r\n]+") do
 
-    line =
-      line:gsub("^%s+", "")
+    value =
+      value:gsub("^%s+", "")
           :gsub("%s+$", "")
 
-    if line ~= "" then
-      table.insert(result, line)
+    if value ~= "" then
+      table.insert(result, value)
     end
   end
 
   return result
 end
 
-local function join_lines(values)
+local function join_values(values)
 
   return table.concat(
     values or {},
-    "\n"
+    "; "
   )
 end
 
@@ -250,7 +287,7 @@ local function field_value_to_text(
 )
 
   if field.multiple then
-    return join_lines(value or {})
+    return join_values(value or {})
   end
 
   return value or ""
@@ -271,7 +308,7 @@ local function field_text_to_value(
   end
 
   if field.multiple then
-    return split_lines(text)
+    return split_values(text)
   end
 
   return text
@@ -394,7 +431,7 @@ local function load_preset_into_editor(preset)
         end
 
         if type(value) == "table" then
-          value = join_lines(value)
+          value = join_values(value)
         end
 
         field_widget.text =
@@ -811,6 +848,7 @@ function M.refresh()
 
     title_widget.text = ""
     title_baseline = ""
+    builtin_description_widget.text = ""
     status.label =
      _("No image selected")
 
@@ -851,6 +889,9 @@ loaded_images = {}
 
   title_widget.text =
     title_baseline
+
+  builtin_description_widget.text =
+    same_builtin_description(images)
 
 for _, field in ipairs(
   placeholders.list_metadata_fields()
@@ -1023,6 +1064,20 @@ local paste_metadata_button =
     clicked_callback = paste_metadata
   }
 
+local save_metadata_button =
+  dt.new_widget("button") {
+    label = _("Save metadata"),
+    tooltip =
+      _("Save the metadata fields below to the selected image(s)"),
+
+    clicked_callback = function()
+
+      save_loaded_metadata()
+
+      M.refresh()
+    end
+  }
+
 -----------------------------------------------------------------------
 --- Preset Editor
 -----------------------------------------------------------------------
@@ -1118,6 +1173,20 @@ table.insert(
     },
 
     title_widget
+  }
+)
+
+table.insert(
+  metadata_editor_definition,
+  dt.new_widget("box") {
+    orientation = "horizontal",
+
+    dt.new_widget("label") {
+      label = _("Description (darktable)"),
+      halign = "start"
+    },
+
+    builtin_description_widget
   }
 )
 
@@ -1262,6 +1331,11 @@ local widget =
       orientation = "horizontal",
       copy_metadata_button,
       paste_metadata_button
+    },
+
+    dt.new_widget("box") {
+      orientation = "horizontal",
+      save_metadata_button
     },
 
     metadata_editor

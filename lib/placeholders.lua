@@ -530,24 +530,167 @@ end
 -- Commons categories
 -----------------------------------------------------------------------
 
+-- Categories are stored in the library as tags, in two formats:
+-- the legacy "Category:..." tags and the private
+-- "dtMediaWiki|category|..." tags. Both are read back as plain
+-- names and both are exported as "[[Category:...]]". The format
+-- used when saving from the metadata panel is a user preference.
+M.CATEGORY_PREFIX = "Category:"
+M.CATEGORY_TAG_PREFIX = tag_prefix("category")
+
+local function category_tag_prefix()
+
+  local pref =
+    dt.preferences.read(
+      "mediawiki",
+      "category_tag",
+      "enum"
+    )
+
+  if pref == M.CATEGORY_TAG_PREFIX then
+    return M.CATEGORY_TAG_PREFIX
+  end
+
+  return M.CATEGORY_PREFIX
+end
+
 function M.get_categories(image)
 
-  return M.get_metadata_values(
-    image,
-    "category"
-  )
+  local result = {}
+  local seen = {}
+
+  local prefixes = {
+    M.CATEGORY_PREFIX,
+    M.CATEGORY_TAG_PREFIX
+  }
+
+  for _, tag in ipairs(attached_tags(image)) do
+
+    local name =
+      tostring(tag.name or "")
+
+    for _, prefix in ipairs(prefixes) do
+
+      if name:sub(1, #prefix) == prefix then
+
+        local value =
+          name:sub(#prefix + 1)
+
+        if value ~= "" and not seen[value] then
+          seen[value] = true
+          table.insert(result, value)
+        end
+
+        break
+      end
+    end
+  end
+
+  table.sort(result)
+
+  return result
 end
 
 function M.set_categories(image, categories)
 
-  return M.set_metadata_values(
-    image,
-    "category",
-    categories
-  )
+  if not image then
+    return false
+  end
+
+  local prefix =
+    category_tag_prefix()
+
+  local prefixes = {
+    M.CATEGORY_PREFIX,
+    M.CATEGORY_TAG_PREFIX
+  }
+
+  -- Detach previous values, in either format.
+  for _, tag in ipairs(attached_tags(image)) do
+
+    local name =
+      tostring(tag.name or "")
+
+    for _, p in ipairs(prefixes) do
+
+      if name:sub(1, #p) == p then
+        dt.tags.detach(tag, image)
+        break
+      end
+    end
+  end
+
+  local seen = {}
+
+  for _, value in ipairs(categories or {}) do
+
+    value = trim(value)
+
+    if value ~= "" and not seen[value] then
+
+      seen[value] = true
+
+      local tag =
+        create_private_tag(
+          prefix .. value
+        )
+
+      if tag then
+        dt.tags.attach(tag, image)
+      end
+    end
+  end
+
+  return true
 end
 
+-----------------------------------------------------------------------
+-- Commons descriptions
+-----------------------------------------------------------------------
 
+-- Descriptions are stored as "dtMediaWiki|description_<lang>|text"
+-- tags. Only two- or three-letter language codes are matched, so
+-- the free-form "description_other" field is not included here.
+function M.get_descriptions(image)
+
+  local result = {}
+
+  for _, tag in ipairs(attached_tags(image)) do
+
+    local name =
+      tostring(tag.name or "")
+
+    local lang =
+      name:match(
+        "^dtMediaWiki|description_([%a][%a][%a]?)|"
+      )
+
+    if lang then
+
+      local prefix =
+        "dtMediaWiki|description_"
+        .. lang
+        .. "|"
+
+      table.insert(
+        result,
+        {
+          lang = lang,
+          text = name:sub(#prefix + 1)
+        }
+      )
+    end
+  end
+
+  table.sort(
+    result,
+    function(a, b)
+      return a.lang < b.lang
+    end
+  )
+
+  return result
+end
 
 -----------------------------------------------------------------------
 -- Placeholder lookup
@@ -1002,97 +1145,164 @@ register_internal {
 -- Commons metadata field registry
 -----------------------------------------------------------------------
 
-local metadata_fields = {
+-- Language codes for which the Commons metadata panel shows a
+-- description field, from the "description_langs" preference.
+-- Two- or three-letter codes only; anything else is ignored.
+local function description_langs()
 
-  {
-    name = "description_de",
-    storage_name = "description_de",
-    label = _("Description (de)"),
-    group = _("Description"),
-    multiple = false,
-    preset = true,
-    preset_apply = "if_empty",
-    widget = "entry",
-  },
+  local pref =
+    dt.preferences.read(
+      "mediawiki",
+      "description_langs",
+      "string"
+    )
 
-  {
-    name = "description_en",
-    storage_name = "description_en",
-    label = _("Description (en)"),
-    group = _("Description"),
-    multiple = false,
-    preset = true,
-    preset_apply = "if_empty",
-    widget = "entry",
-  },
+  pref = tostring(pref or "")
+      :gsub(";", ",")
 
+  local langs = {}
+  local seen = {}
+
+  for lang in pref:gmatch("[^,]+") do
+
+    lang = trim(lang)
+
+    if lang:match("^[%a][%a][%a]?$")
+        and not seen[lang] then
+
+      seen[lang] = true
+      table.insert(langs, lang)
+    end
+  end
+
+  if #langs == 0 then
+    table.insert(langs, "en")
+  end
+
+  return langs
+end
+
+local metadata_fields = {}
+
+-- Not "for _, lang": "_" would hide the translate function.
+local langs = description_langs()
+
+for i = 1, #langs do
+
+  local lang =
+    langs[i]
+
+  table.insert(
+    metadata_fields,
+    {
+      name = "description_" .. lang,
+      storage_name = "description_" .. lang,
+      label = string.format(
+        _("Description (%s)"),
+        lang
+      ),
+      group = _("Description"),
+      multiple = false,
+      preset = true,
+      preset_apply = "if_empty",
+      widget = "entry",
+    }
+  )
+end
+
+table.insert(
+  metadata_fields,
   {
     name = "description_other",
     storage_name = "description_other",
     label = _("Other descriptions"),
+    tooltip = _("Values are separated by semicolons."),
     group = _("Description"),
     multiple = true,
     preset = true,
     preset_apply = "if_empty",
     widget = "entry",
-  },
+  }
+)
 
+table.insert(
+  metadata_fields,
   {
     name = "templates",
     storage_name = "template",
     label = _("Templates"),
+    tooltip = _("Values are separated by semicolons."),
     group = _("Commons"),
     multiple = true,
     preset = true,
     preset_apply = "add",
     widget = "entry",
-  },
+  }
+)
 
+table.insert(
+  metadata_fields,
   {
     name = "categories",
     storage_name = "category",
     label = _("Categories"),
+    tooltip =
+      _("Commons categories as plain names, separated by semicolons. "
+        .. "Existing Category: and dtMediaWiki|category| tags are "
+        .. "shown and managed here as plain names."),
     group = _("Commons"),
     multiple = true,
     preset = true,
     preset_apply = "add",
     parser = "categories",
     widget = "entry",
-  },
+  }
+)
 
+table.insert(
+  metadata_fields,
   {
     name = "wikidata",
     storage_name = "wikidata",
     label = _("Wikidata"),
+    tooltip = _("Values are separated by semicolons."),
     group = _("Commons"),
     multiple = true,
     preset = true,
     preset_apply = "add",
     widget = "entry",
-  },
+  }
+)
 
+table.insert(
+  metadata_fields,
   {
     name = "other_versions",
     storage_name = "other_version",
     label = _("Other versions"),
+    tooltip = _("Values are separated by semicolons."),
     group = _("Commons"),
     multiple = true,
     preset = true,
     preset_apply = "add",
     widget = "entry",
-  },
+  }
+)
 
+table.insert(
+  metadata_fields,
   {
     name = "other_fields",
     storage_name = "other_field",
     label = _("Other fields"),
+    tooltip = _("Values are separated by semicolons."),
     group = _("Commons"),
     multiple = true,
     preset = true,
     preset_apply = "add",
     widget = "entry",
-  },
-}
+  }
+)
 
 local metadata_field_index = {}
 
@@ -1108,16 +1318,45 @@ end
 
 function M.get_metadata_field(name)
 
-  return metadata_field_index[name]
+  local field =
+    metadata_field_index[name]
+
+  -- Descriptions for languages that are not in the
+  -- "description_langs" preference are not shown in the panel,
+  -- but are still readable and writable.
+  if not field
+      and name:match("^description_[%a][%a][%a]?$") then
+
+    field = {
+      name         = name,
+      storage_name = name,
+      label        = string.format(
+        _("Description (%s)"),
+        name:match("^description_([%a][%a][%a]?)$")
+      ),
+      group        = _("Description"),
+      multiple     = false,
+      widget       = "entry",
+    }
+  end
+
+  return field
 end
 
 function M.get_field(image, name)
 
   local field =
-    metadata_field_index[name]
+    M.get_metadata_field(name)
 
   if not field then
     return nil, "unknown metadata field"
+  end
+
+  -- Categories are read from both the legacy "Category:" tags and
+  -- the private "dtMediaWiki|category|" tags, and returned as
+  -- plain names.
+  if name == "categories" then
+    return M.get_categories(image)
   end
 
   if field.multiple then
@@ -1139,10 +1378,16 @@ end
 function M.set_field(image, name, value)
 
   local field =
-    metadata_field_index[name]
+    M.get_metadata_field(name)
 
   if not field then
     return false, "unknown metadata field"
+  end
+
+  -- Categories are written using the user's preferred tag format;
+  -- any existing category tags (in either format) are replaced.
+  if name == "categories" then
+    return M.set_categories(image, value or {})
   end
 
   if field.multiple then

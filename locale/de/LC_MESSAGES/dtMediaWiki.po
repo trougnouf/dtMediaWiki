@@ -140,14 +140,6 @@ msgstr "Sprachcode der Beschreibung. Weitere Beschreibungen können mit dem Tag 
 msgid "Filename pattern resulted in an empty name, falling back to input image basename."
 msgstr "Das Dateinamensmuster ergab einen leeren Namen; stattdessen wird der Basisname des Eingabebildes verwendet."
 
-#: dtMediaWiki.lua:409
-msgid "Commons categories added to every image in this export. Enter one category per line, without [[Category:...]]."
-msgstr "Commons-Kategorien, die jedem Bild dieses Exports hinzugefügt werden. Eine Kategorie pro Zeile eingeben, ohne [[Category:...]]."
-
-#: dtMediaWiki.lua:424
-msgid "Additional Wikitext added to every Commons file page in this export, for example {{Supported by Wikimedia Österreich}}."
-msgstr "Zusätzlicher Wikitext, der jeder Commons-Dateiseite dieses Exports hinzugefügt wird, zum Beispiel {{Supported by Wikimedia Österreich}}."
-
 #: dtMediaWiki.lua:455
 msgid "dtMediaWiki.get_alt_images: looking at "
 msgstr "dtMediaWiki.get_alt_images: prüfe "

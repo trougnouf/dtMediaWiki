@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 14:50+0200\n"
+"POT-Creation-Date: 2026-09-27 15:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,134 +187,114 @@ msgid ""
 "basename."
 msgstr ""
 
-#: dtMediaWiki.lua:448
-msgid ""
-"Commons categories added to every image in this export. Enter one category "
-"per line, without [[Category:...]]."
-msgstr ""
-
-#: dtMediaWiki.lua:463
-msgid ""
-"Additional Wikitext added to every Commons file page in this export, for "
-"example {{Supported by Wikimedia Österreich}}."
-msgstr ""
-
-#: dtMediaWiki.lua:494
+#: dtMediaWiki.lua:461
 msgid "dtMediaWiki.get_alt_images: looking at "
 msgstr ""
 
-#: dtMediaWiki.lua:496
+#: dtMediaWiki.lua:463
 msgid "dtMediaWiki.get_alt_images: looking for "
 msgstr ""
 
-#: dtMediaWiki.lua:500
+#: dtMediaWiki.lua:467
 msgid "dtMediaWiki.get_alt_images: found "
 msgstr ""
 
-#: dtMediaWiki.lua:959 dtMediaWiki.lua:961
+#: dtMediaWiki.lua:860 dtMediaWiki.lua:862
 msgid "Uploaded with dtMediaWiki "
 msgstr ""
 
-#: dtMediaWiki.lua:1088 dtMediaWiki.lua:1248 dtMediaWiki.lua:1250
+#: dtMediaWiki.lua:876 dtMediaWiki.lua:1036 dtMediaWiki.lua:1038
 msgid "Error: "
 msgstr ""
 
-#: dtMediaWiki.lua:1089
+#: dtMediaWiki.lua:877
 msgid ""
 " has an unsupported extension, won't be exported to Wikimedia Commons in "
 "copy mode"
 msgstr ""
 
-#: dtMediaWiki.lua:1098
+#: dtMediaWiki.lua:886
 msgid "register_storage_store: exporting the following image:"
 msgstr ""
 
-#: dtMediaWiki.lua:1102
+#: dtMediaWiki.lua:890
 msgid "BUG: invalid tag 0 for image "
 msgstr ""
 
-#: dtMediaWiki.lua:1120 dtMediaWiki.lua:1136
+#: dtMediaWiki.lua:908 dtMediaWiki.lua:924
 msgid "exported "
 msgstr ""
 
-#: dtMediaWiki.lua:1122
+#: dtMediaWiki.lua:910
 msgid "Failed to export "
 msgstr ""
 
-#: dtMediaWiki.lua:1137
+#: dtMediaWiki.lua:925
 msgid " images to Wikimedia Commons"
 msgstr ""
 
-#: dtMediaWiki.lua:1155
+#: dtMediaWiki.lua:943
 msgid ""
 "Not authenticated with Wikimedia Commons, export disabled. Complete the "
 "login in the Commons metadata panel."
 msgstr ""
 
-#: dtMediaWiki.lua:1185
+#: dtMediaWiki.lua:973
 msgid ""
 "BUG: dt.register_storage.initialize sent a number instead of dt_lua_image_t "
 "in images table: "
 msgstr ""
 
-#: dtMediaWiki.lua:1192
+#: dtMediaWiki.lua:980
 msgid "has no rights"
 msgstr ""
 
-#: dtMediaWiki.lua:1209
+#: dtMediaWiki.lua:997
 msgid "is missing a title, which is required by the filename pattern"
 msgstr ""
 
-#: dtMediaWiki.lua:1225
+#: dtMediaWiki.lua:1013
 msgid "is missing a description, which is required by the filename pattern"
 msgstr ""
 
-#: dtMediaWiki.lua:1237
+#: dtMediaWiki.lua:1025
 msgid ""
 "is missing both title and description, resulting in an empty 'Information|"
 "description' field on the Commons page (and the 'Allow empty Information|"
 "description...' preference is off)"
 msgstr ""
 
-#: dtMediaWiki.lua:1265
+#: dtMediaWiki.lua:1053
 msgid ", won't be exported to Wikimedia Commons"
 msgstr ""
 
-#: dtMediaWiki.lua:1279
+#: dtMediaWiki.lua:1067
 msgid "Write Commons preview"
 msgstr ""
 
-#: dtMediaWiki.lua:1335
+#: dtMediaWiki.lua:1123
 msgid "Naming pattern:"
 msgstr ""
 
-#: dtMediaWiki.lua:1347 lib/placeholders.lua:1248
-msgid "Categories"
-msgstr ""
-
-#: dtMediaWiki.lua:1354 lib/placeholders.lua:1233
-msgid "Templates"
-msgstr ""
-
-#: dtMediaWiki.lua:1365
+#: dtMediaWiki.lua:1140
 msgid "Comment:"
 msgstr ""
 
-#: dtMediaWiki.lua:1375
+#: dtMediaWiki.lua:1150
 msgid "Language code:"
 msgstr ""
 
-#: dtMediaWiki.lua:1377
+#: dtMediaWiki.lua:1152
 msgid "Description language code (eg: en, fr, ...)."
 msgstr ""
 
-#: dtMediaWiki.lua:1399
+#: dtMediaWiki.lua:1174
 msgid ""
 "Wikimedia login requires a verification code, enter it in the 'Wikimedia "
 "Commons metadata' panel."
 msgstr ""
 
-#: dtMediaWiki.lua:1416
+#: dtMediaWiki.lua:1191
 msgid "Unable to log into Wikimedia Commons, export disabled."
 msgstr ""
 
@@ -612,6 +592,14 @@ msgstr ""
 #: lib/placeholders.lua:1268 lib/placeholders.lua:1283
 #: lib/placeholders.lua:1298
 msgid "Values are separated by semicolons."
+msgstr ""
+
+#: lib/placeholders.lua:1233
+msgid "Templates"
+msgstr ""
+
+#: lib/placeholders.lua:1248
+msgid "Categories"
 msgstr ""
 
 #: lib/placeholders.lua:1250

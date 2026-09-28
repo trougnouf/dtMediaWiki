@@ -22,4 +22,5 @@ jobs:
 
       - run: luac -p *.lua lib/*.lua tests/*.lua
       - run: luacheck *.lua lib tests
+      - run: python3 tools/update-translations.py --check
       - run: lua tests/test_categories.lua

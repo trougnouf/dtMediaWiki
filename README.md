@@ -105,9 +105,29 @@ data, and GPS information when available.
 
 ## Translations
 
-The dtMediaWiki user interface supports gettext translations. Translation
-sources and compiled catalogs are included in the plugin's `locale`
-directory.
+The dtMediaWiki user interface supports gettext translations. Every
+translatable string is wrapped in the Lua source: as `_("...")` in the
+`lib/` modules, and as `translate("...")` in `dtMediaWiki.lua`. The
+translation catalogs in the `locale` directory are maintained by
+`tools/update-translations.py`, which extracts the strings from the source,
+updates the `.pot` and per-language `.po` files, and compiles the `.mo`
+binaries:
+
+```
+python3 tools/update-translations.py
+```
+
+Run it whenever you add, change, or remove a wrapped string, and commit the
+resulting `locale/` changes together with your code change. Do not edit the
+`.pot`, `.po`, or `.mo` files by hand. `--check` verifies that the catalogs
+are in sync with the source (this is also run in CI):
+
+```
+python3 tools/update-translations.py --check
+```
+
+Translations are coordinated on [Transifex](https://www.transifex.com/) (see
+`.tx/config`).
 
 ## See also
 

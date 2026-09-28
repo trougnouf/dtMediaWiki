@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dtMediaWiki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 21:31+0000\n"
+"POT-Creation-Date: 2026-09-28 07:05+0000\n"
 "PO-Revision-Date: 2026-09-26 09:30+0200\n"
 "Language: de\n"
 "Last-Translator: dtMediaWiki contributors\n"
@@ -194,81 +194,93 @@ msgid "Filename pattern resulted in an empty name, falling back to input image "
 msgstr "Das Dateinamensmuster ergab einen leeren Namen; stattdessen wird der "
 "Basisname des Eingabebildes verwendet."
 
-#: dtMediaWiki.lua:461
+#: dtMediaWiki.lua:447
+msgid "Commons categories added to every image in this export. Enter one category "
+"per line, without [[Category:...]]."
+msgstr "Commons-Kategorien, die jedem Bild dieses Exports hinzugefügt werden. Eine "
+"Kategorie pro Zeile eingeben, ohne [[Category:...]]."
+
+#: dtMediaWiki.lua:462
+msgid "Additional Wikitext added to every Commons file page in this export, for "
+"example {{Supported by Wikimedia Österreich}}."
+msgstr "Zusätzlicher Wikitext, der jeder Commons-Dateiseite dieses Exports "
+"hinzugefügt wird, zum Beispiel {{Supported by Wikimedia Österreich}}."
+
+#: dtMediaWiki.lua:494
 msgid "dtMediaWiki.get_alt_images: looking at "
 msgstr "dtMediaWiki.get_alt_images: prüfe "
 
-#: dtMediaWiki.lua:463
+#: dtMediaWiki.lua:496
 msgid "dtMediaWiki.get_alt_images: looking for "
 msgstr "dtMediaWiki.get_alt_images: suche nach "
 
-#: dtMediaWiki.lua:467
+#: dtMediaWiki.lua:500
 msgid "dtMediaWiki.get_alt_images: found "
 msgstr "dtMediaWiki.get_alt_images: gefunden "
 
-#: dtMediaWiki.lua:860
-#: dtMediaWiki.lua:862
+#: dtMediaWiki.lua:959
+#: dtMediaWiki.lua:961
 msgid "Uploaded with dtMediaWiki "
 msgstr "Hochgeladen mit dtMediaWiki "
 
-#: dtMediaWiki.lua:876
-#: dtMediaWiki.lua:1036
-#: dtMediaWiki.lua:1038
+#: dtMediaWiki.lua:1088
+#: dtMediaWiki.lua:1248
+#: dtMediaWiki.lua:1250
 msgid "Error: "
 msgstr "Fehler: "
 
-#: dtMediaWiki.lua:877
+#: dtMediaWiki.lua:1089
 msgid " has an unsupported extension, won't be exported to Wikimedia Commons in copy "
 "mode"
 msgstr " hat eine nicht unterstützte Dateiendung und wird im Kopiermodus nicht zu "
 "Wikimedia Commons exportiert"
 
-#: dtMediaWiki.lua:886
+#: dtMediaWiki.lua:1098
 msgid "register_storage_store: exporting the following image:"
 msgstr "register_storage_store: exportiere folgendes Bild:"
 
-#: dtMediaWiki.lua:890
+#: dtMediaWiki.lua:1102
 msgid "BUG: invalid tag 0 for image "
 msgstr "FEHLER: ungültiger Tag 0 für Bild "
 
-#: dtMediaWiki.lua:908
-#: dtMediaWiki.lua:924
+#: dtMediaWiki.lua:1120
+#: dtMediaWiki.lua:1136
 msgid "exported "
 msgstr "hochgeladen: "
 
-#: dtMediaWiki.lua:910
+#: dtMediaWiki.lua:1122
 msgid "Failed to export "
 msgstr "Export fehlgeschlagen: "
 
-#: dtMediaWiki.lua:925
+#: dtMediaWiki.lua:1137
 msgid " images to Wikimedia Commons"
 msgstr " Bilder zu Wikimedia Commons hochgeladen"
 
-#: dtMediaWiki.lua:942
+#: dtMediaWiki.lua:1154
 msgid "Not authenticated with Wikimedia Commons, export disabled. Complete the "
 "login in the Commons metadata panel."
 msgstr "Nicht bei Wikimedia Commons authentifiziert, Export deaktiviert. Vollenden "
 "Sie die Anmeldung im Commons-Metadateneditor."
 
-#: dtMediaWiki.lua:973
+#: dtMediaWiki.lua:1185
 msgid "BUG: dt.register_storage.initialize sent a number instead of dt_lua_image_t "
 "in images table: "
 msgstr "FEHLER: dt.register_storage.initialize hat in der Bildertabelle eine Zahl "
 "statt dt_lua_image_t übergeben: "
 
-#: dtMediaWiki.lua:980
+#: dtMediaWiki.lua:1192
 msgid "has no rights"
 msgstr "hat keine Rechteangabe"
 
-#: dtMediaWiki.lua:996
+#: dtMediaWiki.lua:1208
 msgid "is missing a title, which is required by the filename pattern"
 msgstr "hat keinen Titel, der vom Dateinamensmuster benötigt wird"
 
-#: dtMediaWiki.lua:1012
+#: dtMediaWiki.lua:1224
 msgid "is missing a description, which is required by the filename pattern"
 msgstr "hat keine Beschreibung, die vom Dateinamensmuster benötigt wird"
 
-#: dtMediaWiki.lua:1025
+#: dtMediaWiki.lua:1237
 msgid "is missing both title and description, resulting in an empty "
 "'Information|description' field on the Commons page (and the 'Allow empty "
 "Information|description...' preference is off)"
@@ -276,37 +288,47 @@ msgstr "hat weder Titel noch Beschreibung, wodurch auf der Commons-Seite ein lee
 "Feld „Information|description“ entstehen würde (und die Einstellung „Leeres "
 "Information|description erlauben …“ ist deaktiviert)"
 
-#: dtMediaWiki.lua:1053
+#: dtMediaWiki.lua:1265
 msgid ", won't be exported to Wikimedia Commons"
 msgstr ", wird nicht zu Wikimedia Commons hochgeladen"
 
-#: dtMediaWiki.lua:1067
+#: dtMediaWiki.lua:1279
 msgid "Write Commons preview"
 msgstr "Commons-Vorschau schreiben"
 
-#: dtMediaWiki.lua:1123
+#: dtMediaWiki.lua:1335
 msgid "Naming pattern:"
 msgstr "Namensmuster:"
 
-#: dtMediaWiki.lua:1140
+#: dtMediaWiki.lua:1347
+#: lib/placeholders.lua:1248
+msgid "Categories"
+msgstr "Kategorien"
+
+#: dtMediaWiki.lua:1353
+#: lib/placeholders.lua:1233
+msgid "Templates"
+msgstr "Vorlagen"
+
+#: dtMediaWiki.lua:1365
 msgid "Comment:"
 msgstr "Kommentar:"
 
-#: dtMediaWiki.lua:1150
+#: dtMediaWiki.lua:1375
 msgid "Language code:"
 msgstr "Sprachcode:"
 
-#: dtMediaWiki.lua:1151
+#: dtMediaWiki.lua:1376
 msgid "Description language code (eg: en, fr, ...)."
 msgstr "Sprachcode der Beschreibung (z. B. en, fr, ...)."
 
-#: dtMediaWiki.lua:1173
+#: dtMediaWiki.lua:1398
 msgid "Wikimedia login requires a verification code, enter it in the 'Wikimedia "
 "Commons metadata' panel."
 msgstr "Die Wikimedia-Anmeldung erfordert einen Bestätigungscode; geben Sie ihn im "
 "Feld „Wikimedia-Commons-Metadaten“ ein."
 
-#: dtMediaWiki.lua:1191
+#: dtMediaWiki.lua:1416
 msgid "Unable to log into Wikimedia Commons, export disabled."
 msgstr "Anmeldung bei Wikimedia Commons nicht möglich; Export deaktiviert."
 
@@ -672,14 +694,6 @@ msgstr "Weitere Beschreibungen"
 #: lib/placeholders.lua:1298
 msgid "Values are separated by semicolons."
 msgstr "Werte werden durch Semikolons getrennt."
-
-#: lib/placeholders.lua:1233
-msgid "Templates"
-msgstr "Vorlagen"
-
-#: lib/placeholders.lua:1248
-msgid "Categories"
-msgstr "Kategorien"
 
 #: lib/placeholders.lua:1250
 msgid "Commons categories as plain names, separated by semicolons. Existing "

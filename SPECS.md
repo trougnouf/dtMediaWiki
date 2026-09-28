@@ -61,5 +61,6 @@ Catalog layout: `locale/dtMediaWiki.pot` (template), `locale/<lang>/LC_MESSAGES/
 
 ## 3. Tooling and CI
 
-*   Use the Lua 5.4 toolchain (`luac5.4`, `lua5.4`). A local Lua 5.5 rejects valid 5.4 code — e.g. `luac -p lib/metadata_ui.lua` fails at line 264 ("attempt to assign to const variable 'value'") because Lua 5.5 made generic-for iteration variables const.
+*   The code must run on both Lua 5.4 (which darktable embeds) and Lua 5.5. Syntax that is valid in 5.4 but not in 5.5 must not be used — in particular, generic-for loop variables are const in 5.5, so never assign to them (use a separate local).
 *   CI (`.github/workflows/ci.yml`, Lua 5.4 pinned) runs, in order: `luarocks make`, `luarocks install luacheck`, `luac -p *.lua lib/*.lua tests/*.lua`, `luacheck *.lua lib tests`, `python3 tools/update-translations.py --check`, `lua tests/test_categories.lua`.
+*   When checking locally, run both `luac5.4 -p` and `luac -p` (Lua 5.5) over `*.lua lib/*.lua tests/*.lua` to catch version-specific regressions.

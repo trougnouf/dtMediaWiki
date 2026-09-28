@@ -258,11 +258,11 @@ local function split_values(text)
 
   local result = {}
 
-  for value in tostring(text or "")
+  for item in tostring(text or "")
       :gmatch("[^;\r\n]+") do
 
-    value =
-      value:gsub("^%s+", "")
+    local value =
+      item:gsub("^%s+", "")
           :gsub("%s+$", "")
 
     if value ~= "" then

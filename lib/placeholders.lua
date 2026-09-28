@@ -319,9 +319,9 @@ function M.parse_categories(text)
   text = text:gsub("\r\n", ";")
   text = text:gsub("[\r\n]", ";")
 
-  for item in text:gmatch("[^;]+") do
+  for entry in text:gmatch("[^;]+") do
 
-    item = trim(item)
+    local item = trim(entry)
 
     -- Also accept complete Commons category syntax.
     item = item:gsub(
@@ -1163,9 +1163,9 @@ local function description_langs()
   local langs = {}
   local seen = {}
 
-  for lang in pref:gmatch("[^,]+") do
+  for code in pref:gmatch("[^,]+") do
 
-    lang = trim(lang)
+    local lang = trim(code)
 
     if lang:match("^[%a][%a][%a]?$")
         and not seen[lang] then

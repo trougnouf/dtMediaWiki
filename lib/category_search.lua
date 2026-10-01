@@ -66,8 +66,8 @@ local function add_category(category)
   end
 
   -- Flush pending edits of the metadata editor first, otherwise
-  -- they would be lost, or would overwrite the new category on the
-  -- next selection change.
+  -- they would be lost when the refresh below re-populates the
+  -- widgets.
   MetadataUI.save()
 
   local count = 0
@@ -88,11 +88,12 @@ local function add_category(category)
 
     if not present then
 
-      table.insert(categories, category)
-
-      placeholders.set_categories(
+      -- add_category only touches this one category, so tags
+      -- attached elsewhere (e.g. in the native tag editor) are
+      -- never dropped.
+      placeholders.add_category(
         image,
-        categories
+        category
       )
 
       count = count + 1

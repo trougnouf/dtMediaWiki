@@ -644,6 +644,94 @@ function M.set_categories(image, categories)
   return true
 end
 
+-- Incremental category operations. Unlike set_categories, they
+-- never touch categories other than the given one, so they are
+-- safe to use while the same image is edited elsewhere (native
+-- tag editor, category search).
+function M.add_category(image, category)
+
+  if not image then
+    return false
+  end
+
+  category = trim(category)
+
+  if category == "" then
+    return false
+  end
+
+  local prefix =
+    category_tag_prefix()
+
+  local tag =
+    create_private_tag(prefix .. category)
+
+  if not tag then
+    return false
+  end
+
+  dt.tags.attach(tag, image)
+
+  -- If the same category is attached in the other format, drop
+  -- the duplicate so the library holds a single tag for it.
+  for _, other in ipairs({
+    M.CATEGORY_PREFIX,
+    M.CATEGORY_TAG_PREFIX
+  }) do
+
+    if other ~= prefix then
+
+      local duplicate =
+        dt.tags.find(other .. category)
+
+      if duplicate then
+        dt.tags.detach(duplicate, image)
+      end
+    end
+  end
+
+  return true
+end
+
+function M.remove_category(image, category)
+
+  if not image then
+    return false
+  end
+
+  category = trim(category)
+
+  if category == "" then
+    return false
+  end
+
+  local removed = false
+
+  local prefixes = {
+    M.CATEGORY_PREFIX,
+    M.CATEGORY_TAG_PREFIX
+  }
+
+  for _, tag in ipairs(attached_tags(image)) do
+
+    local name =
+      tostring(tag.name or "")
+
+    for _, prefix in ipairs(prefixes) do
+
+      if name:sub(1, #prefix) == prefix
+          and name:sub(#prefix + 1) == category then
+
+        dt.tags.detach(tag, image)
+        removed = true
+        break
+      end
+    end
+  end
+
+  return removed
+end
+
 -----------------------------------------------------------------------
 -- Commons descriptions
 -----------------------------------------------------------------------
@@ -1248,8 +1336,7 @@ table.insert(
     label = _("Categories"),
     tooltip =
       _("Commons categories as plain names, separated by semicolons. "
-        .. "Existing Category: and dtMediaWiki|category| tags are "
-        .. "shown and managed here as plain names."),
+        .. "[[Category:...]] syntax is also accepted."),
     group = _("Commons"),
     multiple = true,
     preset = true,

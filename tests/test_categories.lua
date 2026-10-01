@@ -190,6 +190,16 @@ local function make_image(filename)
   }
 end
 
+-- Register the tag in the stub's tag database, as darktable does,
+-- so that dt.tags.find can locate it.
+local function attach(image, name)
+
+  local tag =
+    dt_stub.tags.create(name)
+
+  dt_stub.tags.attach(tag, image)
+end
+
 -----------------------------------------------------------------------
 -- parse_categories
 -----------------------------------------------------------------------
@@ -298,6 +308,126 @@ do
   check("set_field/get_field: categories",
     same_table(P.get_field(img, "categories"),
       { "X", "Y" }))
+end
+
+-----------------------------------------------------------------------
+-- Categories: incremental operations
+-----------------------------------------------------------------------
+
+do
+  prefs["mediawiki/category_tag"] = nil
+  local img = make_image()
+  table.insert(img.tags, { name = "unrelated" })
+
+  P.add_category(img, "Foo")
+
+  check("add_category: default writes Category: tag",
+    same_table(tag_names(img),
+      { "Category:Foo", "unrelated" }))
+end
+
+do
+  prefs["mediawiki/category_tag"] = "dtMediaWiki|category|"
+  local img = make_image()
+
+  P.add_category(img, "Foo")
+
+  check("add_category: private tag format from preference",
+    same_table(tag_names(img),
+      { "dtMediaWiki|category|Foo" }))
+end
+
+do
+  prefs["mediawiki/category_tag"] = "dtMediaWiki|category|"
+  local img = make_image()
+  attach(img, "Category:Foo")
+
+  P.add_category(img, "Foo")
+
+  check("add_category: normalizes duplicate in other format",
+    same_table(tag_names(img),
+      { "dtMediaWiki|category|Foo" }))
+end
+
+do
+  prefs["mediawiki/category_tag"] = nil
+  local img = make_image()
+  attach(img, "dtMediaWiki|category|Foo")
+
+  P.add_category(img, "Foo")
+
+  check("add_category: normalizes private duplicate to default",
+    same_table(tag_names(img), { "Category:Foo" }))
+end
+
+do
+  prefs["mediawiki/category_tag"] = nil
+  local img = make_image()
+  attach(img, "Category:Foo")
+
+  local ok = P.add_category(img, "  Foo  ")
+
+  check("add_category: trims, idempotent, returns true",
+    ok and same_table(tag_names(img), { "Category:Foo" }))
+end
+
+do
+  local img = make_image()
+  table.insert(img.tags, { name = "Category:Foo" })
+
+  check("add_category: empty name is a no-op",
+    P.add_category(img, "  ") == false
+    and same_table(tag_names(img), { "Category:Foo" }))
+
+  check("add_category: nil image is a no-op",
+    P.add_category(nil, "Foo") == false)
+end
+
+do
+  local img = make_image()
+  table.insert(img.tags, { name = "Category:Foo" })
+
+  check("remove_category: detaches legacy tag",
+    P.remove_category(img, "Foo")
+    and same_table(tag_names(img), {}))
+end
+
+do
+  local img = make_image()
+  table.insert(img.tags,
+    { name = "dtMediaWiki|category|Foo" })
+
+  check("remove_category: detaches private tag",
+    P.remove_category(img, "Foo")
+    and same_table(tag_names(img), {}))
+end
+
+do
+  local img = make_image()
+  table.insert(img.tags, { name = "Category:Foo" })
+  table.insert(img.tags,
+    { name = "dtMediaWiki|category|Foo" })
+  table.insert(img.tags, { name = "Category:Bar" })
+
+  P.remove_category(img, "Foo")
+
+  check("remove_category: detaches both formats, keeps others",
+    same_table(tag_names(img), { "Category:Bar" }))
+end
+
+do
+  local img = make_image()
+  table.insert(img.tags, { name = "Category:Foo" })
+
+  check("remove_category: absent category returns false",
+    P.remove_category(img, "Bar") == false
+    and same_table(tag_names(img), { "Category:Foo" }))
+
+  check("remove_category: empty name is a no-op",
+    P.remove_category(img, "") == false)
+
+  check("remove_category: nil image is a no-op",
+    P.remove_category(nil, "Foo") == false)
 end
 
 -----------------------------------------------------------------------

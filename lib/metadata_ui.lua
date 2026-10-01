@@ -141,11 +141,16 @@ local status =
 -- Metadata widgets
 -----------------------------------------------------------------------
 
--- The title value the widget was last populated with on refresh.
--- The entry widget has no change callback, so this is how we tell a
--- user edit apart from a stale widget (e.g. after the title was set
--- in the native metadata editor).
+-- The values the widgets were last populated with on refresh.
+-- The widgets have no change callbacks, so this is how we tell a
+-- user edit apart from a stale widget (e.g. after the title or the
+-- tags were changed in the native darktable editors). A field is
+-- only written back to the library when its text differs from the
+-- baseline; an unedited widget may be stale, and writing it back
+-- would silently replace the library values with the stale ones.
 local title_baseline = ""
+
+local field_baselines = {}
 
 local title_widget =
   dt.new_widget("entry") {
@@ -175,9 +180,53 @@ for _, field in ipairs(
   placeholders.list_metadata_fields()
 ) do
 
-  metadata_widgets[field.name] =
-    create_metadata_widget(field)
+  -- Categories are managed with the dedicated read-only view and
+  -- incremental add/remove widgets below, not a replace-all field.
+  if field.name ~= "categories" then
+
+    metadata_widgets[field.name] =
+      create_metadata_widget(field)
+  end
 end
+
+-- Categories are stored as tags and can be changed anywhere
+-- (native tag editor, category search, this panel), so the panel
+-- never rewrites the whole set: a replace-all write would drop
+-- categories attached elsewhere since the last refresh. The view
+-- is read-only; changes go through incremental add/remove
+-- operations that only touch the given category and are therefore
+-- merge-safe. (The display can go stale after tags are changed in
+-- the native tag editor: darktable exposes no tag-changed event to
+-- Lua. Exports are unaffected, they read the tags live.)
+local categories_view =
+  dt.new_widget("text_view") {
+    text = "",
+    editable = false,
+    tooltip =
+      _("Current Commons categories of the selected image(s). "
+        .. "Read-only; use the fields below to add or remove "
+        .. "categories, or tag them in the darktable tag editor.")
+  }
+
+local category_add_entry =
+  dt.new_widget("entry") {
+    text = "",
+    placeholder =
+      _("e.g. Glass doors or [[Category:Glass doors]]"),
+    tooltip =
+      _("Category to add. Plain names, [[Category:...]] syntax, "
+        .. "or several categories separated by semicolons.")
+  }
+
+local category_remove_selector =
+  dt.new_widget("combobox") {
+    tooltip =
+      _("Select a category to remove")
+  }
+
+-- Index into the remove selector's entries, kept in sync on
+-- refresh so the remove button knows which name to detach.
+local remove_candidates = {}
 
 -----------------------------------------------------------------------
 -- Helpers
@@ -351,6 +400,30 @@ local function same_field_value(
   return first
 end
 
+-- Union of the categories of all given images, sorted.
+local function union_categories(images)
+
+  local seen = {}
+  local result = {}
+
+  for _, image in ipairs(images or {}) do
+
+    for _, category in ipairs(
+      placeholders.get_categories(image)
+    ) do
+
+      if not seen[category] then
+        seen[category] = true
+        table.insert(result, category)
+      end
+    end
+  end
+
+  table.sort(result)
+
+  return result
+end
+
 -- TODO unused, no placeholder selector is wired up in the UI
 local function append_placeholder( -- luacheck: ignore
   text_widget,
@@ -510,21 +583,30 @@ local function save_loaded_metadata()
       -- explicitly enters a replacement value.
       if text ~= MULTIPLE then
 
-        local value =
-          field_text_to_value(
-            field,
-            text
-          )
+        -- The widget may hold a stale value (e.g. after the tags
+        -- were changed in the native tag editor). Writing it back
+        -- would silently replace the library values with the stale
+        -- ones. Only write the field back if the user actually
+        -- edited it, i.e. if it differs from the value it was
+        -- populated with on refresh.
+        if text ~= (field_baselines[field.name] or "") then
 
-        for _, image in ipairs(
-          loaded_images
-        ) do
+          local value =
+            field_text_to_value(
+              field,
+              text
+            )
 
-          placeholders.set_field(
-            image,
-            field.name,
-            value
-          )
+          for _, image in ipairs(
+            loaded_images
+          ) do
+
+            placeholders.set_field(
+              image,
+              field.name,
+              value
+            )
+          end
         end
       end
     end
@@ -534,6 +616,99 @@ end
 -- Widgets have no change callbacks, so edits must be flushed
 -- explicitly before anything reads or overwrites the metadata.
 M.save = save_loaded_metadata
+
+-- Save pending edits and re-read all widgets from the library.
+-- This is the panel's refresh: darktable exposes no tag-changed
+-- event to Lua, so a widget may be stale after the tags or the
+-- metadata were changed in another darktable module. Saving first
+-- (instead of re-reading blindly) keeps unsaved edits.
+local function save_and_refresh()
+
+  save_loaded_metadata()
+
+  M.refresh()
+end
+
+-----------------------------------------------------------------------
+-- Incremental category operations
+-----------------------------------------------------------------------
+
+local function add_categories()
+
+  local categories =
+    placeholders.parse_categories(
+      category_add_entry.text or ""
+    )
+
+  if #categories == 0 then
+    dt.print(
+      _("dtMediaWiki: no category entered")
+    )
+    return
+  end
+
+  local images =
+    selected_images()
+
+  if #images == 0 then
+    dt.print(
+      _("dtMediaWiki: no image selected")
+    )
+    return
+  end
+
+  -- Flush pending edits of the other fields before the refresh
+  -- below re-populates the widgets.
+  save_loaded_metadata()
+
+  for _, image in ipairs(images) do
+    for _, category in ipairs(categories) do
+      placeholders.add_category(image, category)
+    end
+  end
+
+  category_add_entry.text = ""
+
+  M.refresh()
+end
+
+local function remove_selected_category()
+
+  local index =
+    category_remove_selector.selected
+
+  if not index or index == 0 then
+    dt.print(
+      _("dtMediaWiki: select a category to remove")
+    )
+    return
+  end
+
+  local category =
+    remove_candidates[index]
+
+  if not category then
+    return
+  end
+
+  local images =
+    selected_images()
+
+  if #images == 0 then
+    dt.print(
+      _("dtMediaWiki: no image selected")
+    )
+    return
+  end
+
+  save_loaded_metadata()
+
+  for _, image in ipairs(images) do
+    placeholders.remove_category(image, category)
+  end
+
+  M.refresh()
+end
 
 -----------------------------------------------------------------------
 -- Apply metadata preset
@@ -848,7 +1023,14 @@ function M.refresh()
 
     title_widget.text = ""
     title_baseline = ""
+    field_baselines = {}
     builtin_description_widget.text = ""
+    categories_view.text = ""
+    category_add_entry.text = ""
+    while #category_remove_selector > 0 do
+      category_remove_selector[#category_remove_selector] = nil
+    end
+    remove_candidates = {}
     status.label =
      _("No image selected")
 
@@ -902,13 +1084,45 @@ for _, field in ipairs(
 
   if field_widget then
 
-    field_widget.text =
+    local text =
       same_field_value(
         images,
         field
       )
+
+    field_widget.text =
+      text
+
+    field_baselines[field.name] =
+      text
   end
 end
+
+  local categories =
+    union_categories(images)
+
+  categories_view.text =
+    join_values(categories)
+
+  category_add_entry.text = ""
+
+  while #category_remove_selector > 0 do
+    category_remove_selector[#category_remove_selector] = nil
+  end
+
+  remove_candidates = {}
+
+  for index, category in ipairs(categories) do
+
+    category_remove_selector[index] =
+      category
+
+    remove_candidates[index] =
+      category
+  end
+
+  category_remove_selector.selected =
+    0
 
   loaded_images =
     copy_images(images)
@@ -1070,12 +1284,34 @@ local save_metadata_button =
     tooltip =
       _("Save the metadata fields below to the selected image(s)"),
 
-    clicked_callback = function()
+    clicked_callback = save_and_refresh
+  }
 
-      save_loaded_metadata()
+local category_add_button =
+  dt.new_widget("button") {
+    label = _("Add"),
+    tooltip =
+      _("Add the entered category(ies) to the selected image(s)"),
+    clicked_callback = add_categories
+  }
 
-      M.refresh()
-    end
+local category_remove_button =
+  dt.new_widget("button") {
+    label = _("Remove"),
+    tooltip =
+      _("Remove the selected category from the selected image(s)"),
+    clicked_callback = remove_selected_category
+  }
+
+local refresh_button =
+  dt.new_widget("button") {
+    label = "↻",
+    tooltip =
+      _("Re-read the metadata of the selected image(s) from the "
+        .. "library (updates all fields below). Use after editing "
+        .. "tags or metadata in the darktable tag or metadata "
+        .. "editors. Unsaved edits in this panel are saved first."),
+    clicked_callback = save_and_refresh
   }
 
 -----------------------------------------------------------------------
@@ -1194,24 +1430,61 @@ for _, field in ipairs(
   placeholders.list_metadata_fields()
 ) do
 
-  local field_widget =
-    metadata_widgets[field.name]
-
-  if field_widget then
+  if field.name == "categories" then
 
     table.insert(
       metadata_editor_definition,
       dt.new_widget("box") {
-        orientation = "horizontal",
+        orientation = "vertical",
 
-        dt.new_widget("label") {
-          label = field.label,
-          halign = "start"
+        dt.new_widget("box") {
+          orientation = "horizontal",
+
+          dt.new_widget("label") {
+            label = field.label,
+            halign = "start"
+          },
+
+          categories_view,
+
+          refresh_button
         },
 
-        field_widget
+        dt.new_widget("box") {
+          orientation = "horizontal",
+          category_add_entry,
+          category_add_button
+        },
+
+        dt.new_widget("box") {
+          orientation = "horizontal",
+          category_remove_selector,
+          category_remove_button
+        }
       }
     )
+
+  else
+
+    local field_widget =
+      metadata_widgets[field.name]
+
+    if field_widget then
+
+      table.insert(
+        metadata_editor_definition,
+        dt.new_widget("box") {
+          orientation = "horizontal",
+
+          dt.new_widget("label") {
+            label = field.label,
+            halign = "start"
+          },
+
+          field_widget
+        }
+      )
+    end
   end
 end
 
